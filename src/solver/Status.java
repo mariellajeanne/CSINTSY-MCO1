@@ -19,7 +19,7 @@ public class Status
      * 
      * @return {Status}
      */
-    public Status getInstance()
+    public static Status getInstance()
     {
         if (s == null)
             s = new Status();
