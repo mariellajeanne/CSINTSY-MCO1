@@ -53,9 +53,9 @@ public class State
     /**
      * Returns the actions leading to the state.
      * 
-     * @return {char}
+     * @return {String}
      */
-    public String getAction()
+    public String getActions()
     {
         return this.actions;
     }
