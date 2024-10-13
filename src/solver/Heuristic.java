@@ -3,6 +3,7 @@
  * 
  * Returns the heuristic value of a node.
  */
+
 package solver;
 
 /**
