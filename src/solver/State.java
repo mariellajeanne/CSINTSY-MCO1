@@ -27,6 +27,7 @@ public class State
     {
         isVisited = false;
         this.map = map;
+        this.items = items;
         this.actions = actions;
     }
 
@@ -87,18 +88,89 @@ public class State
      * @param items {char[][]} The items.
      * @return {State}
      */
-    public State up(char[][] map, char[][] items)
+    public State up(int width, int height, char[][] map, char[][] items)
     {
         /**
          * TODO: code here
          * 
+         * locate player
+         * 
+         * check if invalid move, return null if yes
+         * check if next move isLoss(), return null if yes
+         * check if next move is redundant, return null if yes
+         * 
+         * make the move, update items
          */
 
-        return new State(map, items, ""); // TODO: Please edit this.
+         // current player position
+         int playerRow = -1;
+         int playerCol = -1;
+
+         // locate player
+         for (int row = 0; row < height; row++){
+            for (int col = 0; col < width; col++){
+                if (items[row][col] == '@'){
+                    playerRow = row;
+                    playerCol = col;
+                }
+            }
+         }
+
+         // next row if move is made
+         int nextRow = playerRow - 1;
+         int nextnextRow = playerRow - 2;
+
+         // check if next tile is a wall
+         if (map[nextRow][playerCol] == '#'){
+            return null;
+         }
+         // check if crate is not moveable from the current state
+         else if (items[nextRow][playerCol] == '$'){
+            if (map[nextnextRow][playerCol] == '#'){
+                return null;
+            }
+            else if (items[nextnextRow][playerCol] == '$'){
+                return null;
+            }
+         }
+
+         char[][]nextStateItems = new char[height][width];
+
+         for (int row = 0; row < height; row++){
+            for (int col = 0; col < width; col++){
+                nextStateItems[row][col] = items[row][col];
+            }
+         }
+
+         // if next move pushes a crate
+         if (items[nextRow][playerCol] == '$'){
+            nextStateItems[nextnextRow][playerCol] = '$';
+            nextStateItems[nextRow][playerCol] = '@';
+            nextStateItems[playerRow][playerCol] = ' ';
+         }
+         else{
+            nextStateItems[nextRow][playerCol] = '@';
+            nextStateItems[playerRow][playerCol] = ' ';
+         }
+
+         State nextState = new State(map, nextStateItems, actions + "u");
+
+         // check if next move is desirable
+         if (isLoss(nextState) || isRedundant(nextState)){
+            return null;
+         }
+
+         else{
+            return nextState;
+         }
     }
 
     /**
      * TODO: do the same for other directions
+     * 
+     * 
+     * figure out how to use Status class then proceed
+     * need that to use isLoss() and isRedundant() methods.
      */
 
     public State down(char[][] map, char[][] items)
