@@ -154,15 +154,16 @@ public class State
          }
 
          State nextState = new State(map, nextStateItems, actions + "u");
-
+         return nextState; // placeholder return TODO: delete this
+         
          // check if next move is desirable
-         if (isLoss(nextState) || isRedundant(nextState)){
+        /* if (isLoss(nextState) || isRedundant(nextState)){ // need clarification on how to use Status methods
             return null;
          }
 
          else{
             return nextState;
-         }
+         }*/
     }
 
     /**
