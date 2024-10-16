@@ -1,7 +1,7 @@
 /**
  * @author Ana Victoria R. Angat
  * 
- * Searches the winning state using Greedy Best-First Search.
+ * Searches the winning state using Breadth-First Search.
  */
 
 package solver;
@@ -38,65 +38,89 @@ public class Search
      */
     public String getSequence(State startingState)
     {
-        List<State> visitedStates = new ArrayList<>();
-        
-        // The comparator for the heuristic values.
-        Comparator<State> heuristicComparator = (s1, s2) -> 
-            Integer.compare(Heuristic.getInstance().getHeuristicValue(s1), Heuristic.getInstance().getHeuristicValue(s2));
+        HashSet<State> visitedStates = new HashSet<>();
+        Queue<State> queue = new ArrayDeque<>();
 
-        // The priority queue for the states, comparing the heuristic values of each state.
-        PriorityQueue<State> pQueue = new PriorityQueue<>(heuristicComparator);
-
+        queue.add(startingState);
+        // startingState.visit();
         visitedStates.add(startingState);
-        startingState.visit();
-        pQueue.add(startingState);
 
-        while (!pQueue.isEmpty())
+        while (!queue.isEmpty())
         {
-            State currState = pQueue.poll();
-            
-            // goes through each of the next states, checking if it results in a win, or if it has not been visited yet.
+            State currState = queue.poll();
+
+            if (Status.getInstance().isWin(currState))
+            {
+                return currState.getActions();
+            }
+
+
+            // go through each of the next states (left, right, up, down):
+            // left state
             State leftState = currState.left(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(leftState))
             {
                 return leftState.getActions();
             }
-            if (!visitedStates.contains(leftState))
+            if (!Status.getInstance().isLoss(leftState))
             {
-                pQueue.add(leftState);
+                // do nothing
+            }
+            else if (!Status.getInstance().isRedundant(leftState) && !visitedStates.contains(leftState));
+            {
+                queue.add(leftState);
+                // leftState.visit();
                 visitedStates.add(leftState);
             }
 
+            // right state
             State rightState = currState.right(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(rightState))
             {
                 return rightState.getActions();
             }
-            if (!visitedStates.contains(rightState))
+            if (!Status.getInstance().isLoss(rightState))
             {
-                pQueue.add(rightState);
+                // do nothing
+            }
+            else if (!Status.getInstance().isRedundant(rightState) && !visitedStates.contains(rightState));
+            {
+                queue.add(rightState);
+                // rightState.visit();
                 visitedStates.add(rightState);
             }
 
+            // up state
             State upState = currState.up(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(upState))
             {
                 return upState.getActions();
             }
-            if (!visitedStates.contains(upState))
+            if (!Status.getInstance().isLoss(upState))
             {
-                pQueue.add(upState);
+                // do nothing
+            }
+            else if (!Status.getInstance().isRedundant(upState) && !visitedStates.contains(upState));
+            {
+                queue.add(upState);
+                // upState.visit();
                 visitedStates.add(upState);
             }
 
+            // down state
             State downState = currState.down(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(downState))
             {
                 return downState.getActions();
             }
-            if (!visitedStates.contains(downState))
+            if (!Status.getInstance().isLoss(downState))
             {
-                pQueue.add(downState);
+                // do nothing
+            }
+            else if (!Status.getInstance().isRedundant(downState) && !visitedStates.contains(downState));
+            {
+                queue.add(downState);
+                // downState.visit();
                 visitedStates.add(downState);
             }
         }
