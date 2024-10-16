@@ -16,6 +16,9 @@ public class Search
     // The single instance of the search class.
     private static Search s;
 
+    private HashSet<State> visitedStates = new HashSet<>();
+    private Queue<State> queue = new ArrayDeque<>();
+
     /**
      * Returns the single instance of the class.
      * 
@@ -38,9 +41,6 @@ public class Search
      */
     public String getSequence(State startingState)
     {
-        HashSet<State> visitedStates = new HashSet<>();
-        Queue<State> queue = new ArrayDeque<>();
-
         queue.add(startingState);
         // startingState.visit();
         visitedStates.add(startingState);
@@ -62,16 +62,7 @@ public class Search
             {
                 return getInstance().reversePath(leftState);
             }
-            if (!Status.getInstance().isLoss(leftState))
-            {
-                // do nothing
-            }
-            else if (!Status.getInstance().isRedundant(leftState) && !visitedStates.contains(leftState));
-            {
-                queue.add(leftState);
-                // leftState.visit();
-                visitedStates.add(leftState);
-            }
+            getInstance().processState(leftState);
 
             // right state
             State rightState = currState.right(currState.getMap(), currState.getItems());
@@ -79,16 +70,7 @@ public class Search
             {
                 return getInstance().reversePath(rightState);
             }
-            if (!Status.getInstance().isLoss(rightState))
-            {
-                // do nothing
-            }
-            else if (!Status.getInstance().isRedundant(rightState) && !visitedStates.contains(rightState));
-            {
-                queue.add(rightState);
-                // rightState.visit();
-                visitedStates.add(rightState);
-            }
+            getInstance().processState(rightState);
 
             // up state
             State upState = currState.up(currState.getMap(), currState.getItems());
@@ -96,16 +78,7 @@ public class Search
             {
                 return getInstance().reversePath(upState);
             }
-            if (!Status.getInstance().isLoss(upState))
-            {
-                // do nothing
-            }
-            else if (!Status.getInstance().isRedundant(upState) && !visitedStates.contains(upState));
-            {
-                queue.add(upState);
-                // upState.visit();
-                visitedStates.add(upState);
-            }
+            getInstance().processState(upState);
 
             // down state
             State downState = currState.down(currState.getMap(), currState.getItems());
@@ -113,16 +86,7 @@ public class Search
             {
                 return getInstance().reversePath(downState);
             }
-            if (!Status.getInstance().isLoss(downState))
-            {
-                // do nothing
-            }
-            else if (!Status.getInstance().isRedundant(downState) && !visitedStates.contains(downState));
-            {
-                queue.add(downState);
-                // downState.visit();
-                visitedStates.add(downState);
-            }
+            getInstance().processState(downState);
         }
 
         return "";
@@ -133,8 +97,24 @@ public class Search
      */
 
 
+    /**
+     * Checks for the state's status and adds it to the queue if it's not visited.
+     * 
+     * @param state {State} the state to be processed
+     */
     private void processState(State state)
-
+    {
+        if (!Status.getInstance().isLoss(state))
+        {
+            // do nothing
+        }
+        else if (!Status.getInstance().isRedundant(state) && !visitedStates.contains(state));
+        {
+            queue.add(state);
+            // state.visit();
+            visitedStates.add(state);
+        }
+    }
 
     /**
      * Reconstructs the path taken from the given end state to the starting state.
