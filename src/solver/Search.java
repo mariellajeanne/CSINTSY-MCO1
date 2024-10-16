@@ -51,7 +51,7 @@ public class Search
 
             if (Status.getInstance().isWin(currState))
             {
-                return currState.getActions();
+                return getInstance().reversePath(currState);
             }
 
 
@@ -60,7 +60,7 @@ public class Search
             State leftState = currState.left(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(leftState))
             {
-                return leftState.getActions();
+                return getInstance().reversePath(leftState);
             }
             if (!Status.getInstance().isLoss(leftState))
             {
@@ -77,7 +77,7 @@ public class Search
             State rightState = currState.right(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(rightState))
             {
-                return rightState.getActions();
+                return getInstance().reversePath(rightState);
             }
             if (!Status.getInstance().isLoss(rightState))
             {
@@ -94,7 +94,7 @@ public class Search
             State upState = currState.up(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(upState))
             {
-                return upState.getActions();
+                return getInstance().reversePath(upState);
             }
             if (!Status.getInstance().isLoss(upState))
             {
@@ -111,7 +111,7 @@ public class Search
             State downState = currState.down(currState.getMap(), currState.getItems());
             if (Status.getInstance().isWin(downState))
             {
-                return downState.getActions();
+                return getInstance().reversePath(downState);
             }
             if (!Status.getInstance().isLoss(downState))
             {
@@ -131,4 +131,28 @@ public class Search
     /**
      * TODO: Create helper functions for searching the goal state.
      */
+
+
+    private void processState(State state)
+
+
+    /**
+     * Reconstructs the path taken from the given end state to the starting state.
+     * 
+     * @param endState {State} the end state
+     * @return {String}
+     */
+    private String reversePath(State endState)
+    {
+        StringBuilder path = new StringBuilder(endState.getPrevMove());
+
+        State currState = endState.getPrevState();
+        while (currState != null)
+        {
+            path.append(currState.getPrevMove());
+            currState = currState.getPrevState();
+        }
+
+        return path.reverse().toString();
+    }
 }
