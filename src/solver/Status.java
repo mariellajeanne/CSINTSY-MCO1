@@ -34,6 +34,22 @@ public class Status
      */
     public boolean isLoss(State state)
     {
+        char[][] map = state.getMap();
+
+        for (int[] box : state.getBoxCoor()) 
+        {
+            int wallTouches = getWallTouches(map, box);
+            if( wallTouches >= 2)
+            {
+                return true;
+            }
+            else if(wallTouches == 1 && !isBoxInLineWithATarget(map, box))
+            {
+                return true;
+            }
+                
+        }
+        
         return false; // TODO: Please edit this.
     }
 
@@ -45,14 +61,16 @@ public class Status
      */
     public boolean isWin(State state)
     {
-        for (char[] row : state.getMap()) 
+        char[][] map = state.getMap();
+
+        for (int[] box : state.getBoxCoor()) 
         {
-            for (char c : row) {
-                
+            if (map[box[0]][box[1]] != '.') 
+            {
+                return false;
             }
         }
-
-        return false; // TODO: Please edit this.
+        return true;
     }
 
     /**
@@ -69,4 +87,70 @@ public class Status
     /**
      * TODO: Create helper functions for isLoss() and isWin()
      */
+
+     /**
+      * Determines if the box is touching two walls.
+      *
+      * @param map
+      * @param boxCoor
+      * @return {boolean}
+      */
+    private int getWallTouches(char[][] map, int[] boxCoor)
+    {
+        int touches = 0;
+        
+        if (map[boxCoor[0] - 1][boxCoor[1]] == '#')
+        {
+            touches++;
+        }
+        if (map[boxCoor[0] + 1][boxCoor[1]] == '#')
+        {
+            touches++;
+        }
+        if (map[boxCoor[0]][boxCoor[1] - 1] == '#')
+        {
+            touches++;
+        }
+        if (map[boxCoor[0]][boxCoor[1] + 1] == '#')
+        {
+            touches++;
+        }
+
+        return touches;
+    }
+
+    private boolean isBoxInLineWithATarget(char[][] map, int[] boxCoor, int[][] targetCoor)
+    {
+        if (map[boxCoor[0] + 1][boxCoor[1]] == '#' || map[boxCoor[0] - 1][boxCoor[1]] == '#')
+        {
+            for (int[] target : targetCoor) {
+                if (boxCoor[0] == target[0])
+                {
+                    return true;
+                }
+            }
+        }
+        if (map[boxCoor[0]][boxCoor[1] + 1] == '#' || map[boxCoor[0]][boxCoor[1] - 1] == '#')
+        {
+            for (int[] target : targetCoor)
+            {
+                if(boxCoor[1] == target[1])
+                {
+                    return true;
+                }
+            }
+        }
+    }
 }
+
+/*
+ * Pseudocode for isLoss():
+ * check if box is touching 2 walls: return true
+ * 
+ * check if box is touching 1 wall and is not in line with a target: return true (FLAWED)
+ * 
+ * check if boxes are diagonally touching
+ *  if touching a wall
+ *      if the player is not in the pocket the boxes made 
+ *          if they arent in line with a target
+ */
