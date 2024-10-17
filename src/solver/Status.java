@@ -45,6 +45,13 @@ public class Status
      */
     public boolean isWin(State state)
     {
+        for (char[] row : state.getMap()) 
+        {
+            for (char c : row) {
+                
+            }
+        }
+
         return false; // TODO: Please edit this.
     }
 
