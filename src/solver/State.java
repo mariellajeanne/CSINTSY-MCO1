@@ -15,6 +15,7 @@ public class State
     private char[][] items; // The items of the state.
     private int[] playerCoor; // The player coordinates.
     private int[][] boxCoor; // The coordinates of all boxes.
+    private int[][] targetCoor; // The coordinates of all targets.
     private State prevState; // The previous state before executing a move.
     private char prevMove; // The previous move that leads to the current state.
     ///////////////////// private String actions; // The action of the player to reach this state.
@@ -27,18 +28,20 @@ public class State
      * @param items {char[][]} The items.
      * @param playerCoor {int[]} The player coordinates.
      * @param boxCoor {int [][]} The boxes' coordinates.
+     * @param targetCoor {int[][]} The targets' coordinates.
      * @param prevState {State} The previous state before executing a move.
      * @param prevMove {char} The previous move that leads to the current state.
     /////////////  * @param actions {String} The actions leading to the state.
      */
     public State(char[][] map, char[][] items, int[] playerCoor, int[][] boxCoor,
-                State prevState, char prevMove)
+                int[][] targetCoor, State prevState, char prevMove)
     {
         isVisited = false;
         this.map = map;
         this.items = items;
         this.playerCoor = playerCoor;
         this.boxCoor = boxCoor;
+        this.targetCoor = targetCoor;
         this.prevState = prevState;
         this.prevMove = prevMove;
     }
@@ -76,11 +79,21 @@ public class State
     /**
      * Returns the boxes' coordinates.
      * 
-     * @return {char[][]}
+     * @return {int[][]}
      */
-    public char[][] getBoxCoor()
+    public int[][] getBoxCoor()
     {
         return this.boxCoor;
+    }
+
+    /**
+     * Returns the targets' coordinates.
+     * 
+     * @return {int[][]}
+     */
+    public int[][] getTargetCoor()
+    {
+        return this.targetCoor;
     }
 
     /**
@@ -153,7 +166,7 @@ public class State
     }
 
     /**
-     * Returns the tile at the specified coordinate.
+     * Returns the tile at the specified coordinates.
      * 
      * @param row {int} // The row.
      * @param col {int} // The column.
@@ -225,7 +238,7 @@ public class State
          {
             newBoxCoor = copyBoxCoor();
 
-            // move box
+            // move box //////////////////////////   char[][] items is not touched, its not even used anymore
             for (int i = 0; i < boxCoor.length; i++)
             {
                 if (newBoxCoor[i][0] == nextRow && newBoxCoor[i][1] == nextCol)
@@ -266,7 +279,7 @@ public class State
             move = 'r';
          }
 
-         State newState = new State(map, items, newPlayerCoor, newBoxCoor, this, move);
+         State newState = new State(map, items, newPlayerCoor, newBoxCoor, targetCoor, this, move);
          Status s = Status.getInstance();
 
          // if state is not desirable
