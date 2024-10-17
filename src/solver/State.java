@@ -78,7 +78,7 @@ public class State
      * 
      * @return {char[][]}
      */
-    public char[][] getBoxCoor()
+    public int[][] getBoxCoor()
     {
         return this.boxCoor;
     }
