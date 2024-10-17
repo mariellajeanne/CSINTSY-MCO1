@@ -43,7 +43,7 @@ public class Status
             {
                 return true;
             }
-            else if(wallTouches == 1 && !isBoxInLineWithATarget(map, box))
+            else if(wallTouches == 1 && !isBoxInLineWithATarget(map, box, )) // TODO: add targetCoor getter here
             {
                 return true;
             }
@@ -140,6 +140,7 @@ public class Status
                 }
             }
         }
+        return false;
     }
 }
 
