@@ -16,7 +16,7 @@ public class Search
     // The single instance of the search class.
     private static Search s;
 
-    private HashSet<State> visitedStates = new HashSet<>();
+    private HashSet<char[][]> visitedStates = new HashSet<>();
     private Queue<State> queue = new ArrayDeque<>();
 
     /**
@@ -43,7 +43,7 @@ public class Search
     {
         queue.add(startingState);
         // startingState.visit();
-        visitedStates.add(startingState);
+        visitedStates.add(startingState.getItems());
 
         while (!queue.isEmpty())
         {
@@ -108,11 +108,11 @@ public class Search
         {
             // do nothing
         }
-        else if (!Status.getInstance().isRedundant(state) && !visitedStates.contains(state));
+        else if (!Status.getInstance().isRedundant(state) && !visitedStates.contains(state.getItems()));
         {
             queue.add(state);
             // state.visit();
-            visitedStates.add(state);
+            visitedStates.add(state.getItems());
         }
     }
 
