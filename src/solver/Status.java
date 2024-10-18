@@ -101,7 +101,7 @@ public class Status
      */
 
      /**
-      * Determines if the box is touching two walls.
+      * Gets how many walls the box is touching. Helper method for isLoss().
       *
       * @param map
       * @param boxCoor
@@ -131,6 +131,14 @@ public class Status
         return touches;
     }
 
+    /**
+     * Determines if the box is touching a wall and is not in line with a target. Helper function for isLoss(). 
+     * Helper method for isLoss()
+     * @param map
+     * @param boxCoor
+     * @param targetCoor
+     * @return
+     */
     private boolean isBoxInLineWithATarget(char[][] map, int[] boxCoor, int[][] targetCoor)
     {
         if (map[boxCoor[0] + 1][boxCoor[1]] == '#' || map[boxCoor[0] - 1][boxCoor[1]] == '#')
