@@ -81,6 +81,18 @@ public class Status
      */
     public boolean isRedundant(State state)
     {
+        State prevState = state; 
+
+        while (prevState.getPrevState() != null)
+        {
+            prevState = prevState.getPrevState();
+
+            if (state.getItems() == prevState.getItems())
+            {
+                return true;
+            }
+        }
+
         return false; // TODO: Please edit this.
     }
 
@@ -154,4 +166,8 @@ public class Status
  *  if touching a wall
  *      if the player is not in the pocket the boxes made 
  *          if they arent in line with a target
+ */
+
+ /* Pseudocode for isRedundant
+ * 
  */
