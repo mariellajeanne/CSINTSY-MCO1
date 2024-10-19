@@ -6,6 +6,8 @@
 
 package solver;
 
+import java.util.Arrays;
+
 /**
  * The status class.
  */
@@ -87,7 +89,7 @@ public class Status
         {
             prevState = prevState.getPrevState();
 
-            if (state.getItems() == prevState.getItems())
+            if (Arrays.equals(state.getItems(), prevState.getItems()))
             {
                 return true;
             }
