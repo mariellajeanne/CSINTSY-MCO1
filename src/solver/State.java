@@ -261,9 +261,11 @@ public class State
      * Returns null if the could not or should not be made.
      * 
      * @param move {char} The move made (left: 'l', right: 'r', up: 'u', down: 'd').
+     * @param offsetx {int} The x-coordinate offset.
+     * @param offsety {int} The y-coordinate offset.
      * @return {State}
      */
-    public State movePlayer(char move)
+    public State movePlayer(char move, int offsetx, int offsety)
     {
         return new State(map, items, playerCoor, boxCoor, targetCoor, prevState, prevMove);
     }

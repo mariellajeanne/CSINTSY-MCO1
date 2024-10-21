@@ -22,7 +22,10 @@ public class Search
     private HashSet<HashSet<int[]>> visitedStates = new HashSet<>();
 
     private Queue<State> queue = new ArrayDeque<>();
+
     private final char[] moves = {'l', 'r', 'u', 'd'};
+    private final int[] offsetx = {-1, 1, 0, 0};
+    private final int[] offsety = {0, 0, -1, 1};
 
     /**
      * Constructs the single search instance.
@@ -69,8 +72,8 @@ public class Search
 
 
             // go through each of the next states (left, right, up, down):
-            for (char move : moves) {
-                State nextState = currState.movePlayer(move);
+            for (int i = 0; i < 4; i++) {
+                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
                 if (nextState == null)
                 {
                     continue;
