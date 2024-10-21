@@ -144,19 +144,33 @@ public class State
     //     set.remove(coor);
     // }
 
-    // /**
-    //  * Checks if a coordinate exists in a set of coordinates.
-    //  * 
-    //  * @param set   {HashSet<int[]>}    The set of coordinates.
-    //  * @param x     {int}               The x-coordinate.
-    //  * @param y     {int}               The y-coordinate.
-    //  * @return      {boolean}
-    //  */
-    // private boolean containsCoor(HashSet<int[]> set, int x, int y)
-    // {
-    //     int[] coor = {x, y};
-    //     return set.contains(coor);
-    // }
+    /**
+     * Checks if a coordinate exists in a set of coordinates.
+     * Uses the x and y coordinates individually.
+     * 
+     * @param set   {HashSet<C<int[]>>} The set of coordinates.
+     * @param x     {int}               The x-coordinate.
+     * @param y     {int}               The y-coordinate.
+     * @return      {boolean}
+     */
+    private boolean containsCoor(HashSet<C<int[]>> set, int x, int y)
+    {
+        int[] coor = {x, y};
+        return set.contains(new C<>(coor));
+    }
+
+    /**
+     * Checks if a coordinate exists in a set of coordinates.
+     * Uses the x and y coordinate pair.
+     * 
+     * @param set   {HashSet<C<int[]>>} The set of coordinates.
+     * @param coor  {int[]} The x and y coordinate pair.
+     * @return      {boolean}
+     */
+    private boolean containsCoor(HashSet<C<int[]>> set, int[] coor)
+    {
+        return set.contains(new C<>(coor));
+    }
 
     /**
      * Marks the state as visited.
@@ -208,31 +222,53 @@ public class State
             boxPushed[0] = nextTiles[1][0];
             boxPushed[1] = nextTiles[1][1];
 
-            // Updates the player's location.
-            playerCoor[0] = nextTiles[0][0];
-            playerCoor[1] = nextTiles[0][1];
-
             // Checks if the move results in a loss.
-            
-
+            if (!containsCoor(targetCoor, boxPushed) && isLoss())
+                return null;
         }
 
         // The next tile does not contain a wall nor a box.
         else
         {
             // Checks if the move is redundant.
-            if (prevState.boxPushed[0] == -1 &&
-                (move == 'l' && prevState.prevMove == 'r') ||
+            if ((move == 'l' && prevState.prevMove == 'r') ||
                 (move == 'r' && prevState.prevMove == 'l') ||
                 (move == 'u' && prevState.prevMove == 'd') ||
                 (move == 'd' && prevState.prevMove == 'u'))
                 return null;
-
-            // Updates the player's location.
-            playerCoor[0] = nextTiles[0][0];
-            playerCoor[1] = nextTiles[0][1];
         }
 
+        // Updates the player's location.
+        playerCoor[0] = nextTiles[0][0];
+        playerCoor[1] = nextTiles[0][1];
+
+        // Returns the new state otherwise.
         return new State(playerCoor, boxCoor, this, move);
+    }
+
+    /**
+     * Checks if the state results in a loss.
+     * 
+     * @return {boolean}
+     */
+    private boolean isLoss()
+    {
+        // Check if in a corner (includes L-shape), not in a target
+        // Check if in an enclosed edge without gaps ([-shape)
+        // Check if pushed to a wall with another box adjacent to it
+
+        // Recursion for checking immovable boxes ([-shape)
+        // Consider if a target is available
+        
+        // Checks if the box is trapped in a corner.
+        if ((containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) ||
+            containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1])) &&
+            (containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1) ||
+            containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1)))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
