@@ -1,18 +1,39 @@
 /**
- * @author <Full Name>
+ * @author Ana Victoria R. Angat
  * 
- * Searches the winning state using Greedy Best-First Search.
+ * Searches the winning state using Breadth-First Search.
  */
 
 package solver;
+import java.util.*;
 
 /**
  * The search class.
- */
+*/
 public class Search
 {
     // The single instance of the search class.
-    private static Search s;
+    private static Search search;
+
+    // The single instance of the status class.
+    private static Status status;
+
+    // The set of visited box coor states.
+    private HashSet<HashSet<int[]>> visitedStates = new HashSet<>();
+
+    private Queue<State> queue = new ArrayDeque<>();
+
+    private final char[] moves = {'l', 'r', 'u', 'd'};
+    private final int[] offsetx = {-1, 1, 0, 0};
+    private final int[] offsety = {0, 0, -1, 1};
+
+    /**
+     * Constructs the single search instance.
+     */
+    private Search()
+    {
+        status = Status.getInstance();
+    }
 
     /**
      * Returns the single instance of the class.
@@ -21,23 +42,74 @@ public class Search
      */
     public static Search getInstance()
     {
-        if (s == null)
-            s = new Search();
-        return s;
+        if (search == null)
+            search = new Search();
+        return search;
     }
 
     /**
      * Returns the sequence of the goal state's moves.
      * Returns "" otherwise.
      * 
+     * @param startingState {State} the starting state
+     * 
      * @return {String}
      */
-    public String getSequence()
+    public String getSequence(State startingState)
     {
-        return ""; // TODO: Please edit this.
+        queue.add(startingState);
+        // startingState.visit();
+        visitedStates.add(startingState.boxCoor);
+
+        while (!queue.isEmpty())
+        {
+            State currState = queue.poll();
+
+            if (status.isWin(currState))
+            {
+                return reversePath(currState);
+            }
+
+
+            // go through each of the next states (left, right, up, down):
+            for (int i = 0; i < 4; i++) {
+                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                if (nextState == null)
+                {
+                    continue;
+                }
+                if (nextState.boxCoor.equals(State.targetCoor))
+                {
+                    return reversePath(nextState);
+                }
+                if (!visitedStates.contains(nextState.boxCoor))
+                {
+                    queue.add(nextState);
+                    visitedStates.add(nextState.boxCoor);
+                }
+            }
+        }
+
+        return "";
     }
 
     /**
-     * TODO: Create helper functions for searching the goal state.
+     * Reconstructs the path taken from the given end state to the starting state.
+     * 
+     * @param endState {State} the end state
+     * @return {String}
      */
+    private String reversePath(State endState)
+    {
+        StringBuilder path = new StringBuilder(endState.prevMove);
+
+        State currState = endState.getPrevState();
+        while (currState != null)
+        {
+            path.append(currState.prevMove);
+            currState = currState.prevMove;
+        }
+
+        return path.reverse().toString();
+    }
 }

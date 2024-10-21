@@ -1,64 +1,162 @@
 /**
- * @author <Full Name>
+ * @author <Ronnie M. Abiog Jr.>
  * 
  * Creates and manipulates states.
  */
 
 package solver;
+import java.util.*;
 
 /**
  * The state class.
- */
+*/
 public class State
 {
-    private char[][] map; // The map of the state.
-    private char[][] items; // The items of the state.
-    private String actions; // The action of the player to reach this state.
-    private boolean isVisited; // Determines if the state has already been visited.
+    public int[] playerCoor;                    // The player coordinates.
+    public HashSet<C<int[]>> boxCoor;           // The boxes' coordinates.
+    public static HashSet<C<int[]>> targetCoor; // The targets' coordinates.
+    public static HashSet<C<int[]>> wallCoor;   // The walls' coordinates.
+
+    public final State prevState;  // The previous state before executing a move.
+    public final char prevMove;    // The previous move that leads to the current state.
+
+    public int[] boxPushed;   // The coordinates of the pushed box.
+
+    public boolean isVisited; // Determines if the state has already been visited.
 
     /**
-     * Constructs the state.
+     * Constructs the initial state.
      * 
-     * @param map {char[][]} The map.
-     * @param items {char[][]} The items.
-     * @param actions {String} The actions leading to the state.
+     * @param map   {char[][]}  The map.
+     * @param items {char[][]}  The items.
      */
-    public State(char[][] map, char[][] items, String actions)
+    public State(char[][] map, char[][] items)
     {
-        isVisited = false;
-        this.map = map;
-        this.actions = actions;
+        setCoordinates(map, items);
+
+        this.prevState = null;
+        this.prevMove = ' ';
+
+        this.boxPushed = new int[2];
+        this.boxPushed[0] = -1;
+        this.boxPushed[1] = -1;
+
+        this.isVisited = false;
     }
 
     /**
-     * Returns the map of the state.
+     * Constructs the next states.
      * 
-     * @return {char[][]}
+     * @param map           {char[][]}          The map.
+     * @param items         {char[][]}          The items.
+     * 
+     * @param playerCoor    {int[]}                      The player coordinates.
+     * @param boxCoor       {HashSet<C<int[]>>}    The boxes' coordinates.
+     * @param targetCoor    {HashSet<C<int[]>>}    The targets' coordinates.
+     * 
+     * @param prevState     {State}             The previous state before executing a move.
+     * @param prevMove      {char}              The previous move that leads to the current state.
      */
-    public char[][] getMap()
+    public State(int[] playerCoor, HashSet<C<int[]>> boxCoor, State prevState, char prevMove)
     {
-        return this.map;
+        this.playerCoor = playerCoor;
+        this.boxCoor = boxCoor;
+        
+        this.prevState = prevState;
+        this.prevMove = prevMove;
+
+        this.boxPushed = new int[2];
+        this.boxPushed[0] = -1;
+        this.boxPushed[1] = -1;
+
+        this.isVisited = false;
     }
 
     /**
-     * Returns the items of the state.
+     * Sets the coordinates of each tile.
      * 
-     * @return {char[][]}
+     * @param map   {char[][]}  The map.
+     * @param items {char[][]}  The items.
      */
-    public char[][] getItems()
+    private void setCoordinates(char[][] map, char[][] items)
     {
-        return this.items;
+        // Initialization of coordinate variables.
+        playerCoor = new int[2];
+        boxCoor = new HashSet<>();
+        targetCoor = new HashSet<>();
+        wallCoor = new HashSet<>();
+
+        // Sets the initial coordinates of the pushed box to (-1, -1).
+        boxPushed[0] = -1;
+        boxPushed[1] = -1;
+
+        // Sets the coordinates of the map and items.
+
+        // Checks each row.
+        for (int y = 0; y < 100; y++)
+        {
+            // Checks each column.
+            for (int x = 0; x < 100; x++)
+            {
+                // Checks the map data.
+                switch (map[y][x])
+                {
+                    case '#' -> { addCoor(wallCoor, x, y);   }
+                    case '.' -> { addCoor(targetCoor, x, y); }
+                }
+
+                // Checks the items data.
+                switch (items[y][x])
+                {
+                    case '$' -> { addCoor(boxCoor, x, y); }
+                    case '@' -> { playerCoor[0] = x;
+                                  playerCoor[1] = y;      }
+                }
+            }
+        }
     }
 
+    
+
     /**
-     * Returns the actions leading to the state.
+     * Adds a coordinate to a set coordinates.
      * 
-     * @return {char}
+     * @param set   {HashSet<C<int[]>>} The set of coordinates.
+     * @param x     {int} The x-coordinate.
+     * @param y     {int} The y-coordinate.
      */
-    public String getAction()
+    private void addCoor(HashSet<C<int[]>> set, int x, int y)
     {
-        return this.actions;
+        int[] coor = {x, y};
+        set.add(new C<>(coor));
     }
+
+    // /**
+    //  * Removes a coordinate to a set coordinates.
+    //  * 
+    //  * @param set   {HashSet<int[]>}    The set of coordinates.
+    //  * @param x     {int}               The x-coordinate.
+    //  * @param y     {int}               The y-coordinate.
+    //  */
+    // private void removeCoor(HashSet<int[]> set, int x, int y)
+    // {
+    //     int[] coor = {x, y};
+    //     set.remove(coor);
+    // }
+
+    // /**
+    //  * Checks if a coordinate exists in a set of coordinates.
+    //  * 
+    //  * @param set   {HashSet<int[]>}    The set of coordinates.
+    //  * @param x     {int}               The x-coordinate.
+    //  * @param y     {int}               The y-coordinate.
+    //  * @return      {boolean}
+    //  */
+    // private boolean containsCoor(HashSet<int[]> set, int x, int y)
+    // {
+    //     int[] coor = {x, y};
+    //     return set.contains(coor);
+    // }
 
     /**
      * Marks the state as visited.
@@ -79,40 +177,62 @@ public class State
     }
 
     /**
-     * Returns the state of the player moving up.
-     * Returns null if the move cannot or should not
-     * be made.
+     * Returns a new state resulting from the player moving.
+     * Returns null if the move cannot be made.
      * 
-     * @param map {char[][]} The map.
-     * @param items {char[][]} The items.
-     * @return {State}
+     * @param move      {char}  The move made (left: 'l', right: 'r', up: 'u', down: 'd').
+     * @param xOffset   {int}   The horizontal offset (left: -1, right: 1, none: 0).
+     * @param yOffset   {int}   The vertical offset (up: 1, down: -1, none: 0).
+     * @return          {State}
      */
-    public State up(char[][] map, char[][] items)
+    public State movePlayer(char move, int xOffset, int yOffset)
     {
-        /**
-         * TODO: code here
-         * 
-         */
+        // Sets the coordinates of the next two tiles.
+        int[][] nextTiles = {{playerCoor[0] + xOffset, playerCoor[1] + yOffset},
+            {playerCoor[0] + (xOffset * 2), playerCoor[1] + (yOffset * 2)}};
 
-        return new State(map, items, ""); // TODO: Please edit this.
-    }
+        // Checks if the next tile contains a wall.
+        if (wallCoor.contains(new C<>(nextTiles[0])))
+            return null;
 
-    /**
-     * TODO: do the same for other directions
-     */
+        // Checks if the next tile contains a box.
+        if (boxCoor.contains(new C<>(nextTiles[0])))
+        {
+            // Checks if the box is immovable.
+            if (boxCoor.contains(new C<>(nextTiles[1])) || wallCoor.contains(new C<>(nextTiles[1])))
+                return null;
 
-    public State down(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
-    }
+            // Updates the coordinates of the pushed box.
+            boxCoor.remove(new C<>(nextTiles[0]));
+            boxCoor.add(new C<>(nextTiles[1]));
+            boxPushed[0] = nextTiles[1][0];
+            boxPushed[1] = nextTiles[1][1];
 
-    public State left(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
-    }
+            // Updates the player's location.
+            playerCoor[0] = nextTiles[0][0];
+            playerCoor[1] = nextTiles[0][1];
 
-    public State right(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
+            // Checks if the move results in a loss.
+            
+
+        }
+
+        // The next tile does not contain a wall nor a box.
+        else
+        {
+            // Checks if the move is redundant.
+            if (prevState.boxPushed[0] == -1 &&
+                (move == 'l' && prevState.prevMove == 'r') ||
+                (move == 'r' && prevState.prevMove == 'l') ||
+                (move == 'u' && prevState.prevMove == 'd') ||
+                (move == 'd' && prevState.prevMove == 'u'))
+                return null;
+
+            // Updates the player's location.
+            playerCoor[0] = nextTiles[0][0];
+            playerCoor[1] = nextTiles[0][1];
+        }
+
+        return new State(playerCoor, boxCoor, this, move);
     }
 }
