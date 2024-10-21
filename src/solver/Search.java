@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * The search class.
- */
+*/
 public class Search
 {
     // The single instance of the search class.
