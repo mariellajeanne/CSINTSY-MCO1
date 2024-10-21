@@ -5,7 +5,6 @@
  */
 
 package solver;
-
 import java.util.*;
 
 /**
@@ -14,10 +13,21 @@ import java.util.*;
 public class Search
 {
     // The single instance of the search class.
-    private static Search s;
+    private static Search search;
+
+    // The single instance of the status class.
+    private static Status status;
 
     private HashSet<char[][]> visitedStates = new HashSet<>();
     private Queue<State> queue = new ArrayDeque<>();
+
+    /**
+     * Constructs the single search instance.
+     */
+    private Search()
+    {
+        status = Status.getInstance();
+    }
 
     /**
      * Returns the single instance of the class.
@@ -26,9 +36,9 @@ public class Search
      */
     public static Search getInstance()
     {
-        if (s == null)
-            s = new Search();
-        return s;
+        if (search == null)
+            search = new Search();
+        return search;
     }
 
     /**
@@ -49,53 +59,48 @@ public class Search
         {
             State currState = queue.poll();
 
-            if (Status.getInstance().isWin(currState))
+            if (status.isWin(currState))
             {
-                return getInstance().reversePath(currState);
+                return reversePath(currState);
             }
 
 
             // go through each of the next states (left, right, up, down):
             // left state
-            State leftState = currState.left(currState.getMap(), currState.getItems());
-            if (Status.getInstance().isWin(leftState))
+            State leftState = currState.movePlayer('l');
+            if (status.isWin(leftState))
             {
-                return getInstance().reversePath(leftState);
+                return reversePath(leftState);
             }
-            getInstance().processState(leftState);
+            processState(leftState);
 
             // right state
-            State rightState = currState.right(currState.getMap(), currState.getItems());
-            if (Status.getInstance().isWin(rightState))
+            State rightState = currState.movePlayer('r');
+            if (status.isWin(rightState))
             {
-                return getInstance().reversePath(rightState);
+                return reversePath(rightState);
             }
-            getInstance().processState(rightState);
+            processState(rightState);
 
             // up state
-            State upState = currState.up(currState.getMap(), currState.getItems());
-            if (Status.getInstance().isWin(upState))
+            State upState = currState.movePlayer('u');
+            if (status.isWin(upState))
             {
-                return getInstance().reversePath(upState);
+                return reversePath(upState);
             }
-            getInstance().processState(upState);
+            processState(upState);
 
             // down state
-            State downState = currState.down(currState.getMap(), currState.getItems());
-            if (Status.getInstance().isWin(downState))
+            State downState = currState.movePlayer('d');
+            if (status.isWin(downState))
             {
-                return getInstance().reversePath(downState);
+                return reversePath(downState);
             }
-            getInstance().processState(downState);
+            processState(downState);
         }
 
         return "";
     }
-
-    /**
-     * TODO: Create helper functions for searching the goal state.
-     */
-
 
     /**
      * Checks for the state's status and adds it to the queue if it's not visited.
@@ -104,11 +109,11 @@ public class Search
      */
     private void processState(State state)
     {
-        if (!Status.getInstance().isLoss(state))
+        if (!status.isLoss(state))
         {
             // do nothing
         }
-        else if (!Status.getInstance().isRedundant(state) && !visitedStates.contains(state.getItems()));
+        else if (!status.isRedundant(state) && !visitedStates.contains(state.getItems()));
         {
             queue.add(state);
             // state.visit();
