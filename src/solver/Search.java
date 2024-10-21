@@ -18,8 +18,11 @@ public class Search
     // The single instance of the status class.
     private static Status status;
 
-    private HashSet<char[][]> visitedStates = new HashSet<>();
+    // The set of visited box coor states.
+    private HashSet<HashSet<int[]>> visitedStates = new HashSet<>();
+
     private Queue<State> queue = new ArrayDeque<>();
+    private final char[] moves = {'l', 'r', 'u', 'd'};
 
     /**
      * Constructs the single search instance.
@@ -53,7 +56,7 @@ public class Search
     {
         queue.add(startingState);
         // startingState.visit();
-        visitedStates.add(startingState.getItems());
+        visitedStates.add(startingState.getBoxCoor());
 
         while (!queue.isEmpty())
         {
@@ -66,59 +69,25 @@ public class Search
 
 
             // go through each of the next states (left, right, up, down):
-            // left state
-            State leftState = currState.movePlayer('l');
-            if (status.isWin(leftState))
-            {
-                return reversePath(leftState);
+            for (char move : moves) {
+                State nextState = currState.movePlayer(move);
+                if (nextState == null)
+                {
+                    continue;
+                }
+                if (status.isWin(nextState))
+                {
+                    return reversePath(nextState);
+                }
+                if (!visitedStates.contains(nextState.getBoxCoor()))
+                {
+                    queue.add(nextState);
+                    visitedStates.add(nextState.getBoxCoor());
+                }
             }
-            processState(leftState);
-
-            // right state
-            State rightState = currState.movePlayer('r');
-            if (status.isWin(rightState))
-            {
-                return reversePath(rightState);
-            }
-            processState(rightState);
-
-            // up state
-            State upState = currState.movePlayer('u');
-            if (status.isWin(upState))
-            {
-                return reversePath(upState);
-            }
-            processState(upState);
-
-            // down state
-            State downState = currState.movePlayer('d');
-            if (status.isWin(downState))
-            {
-                return reversePath(downState);
-            }
-            processState(downState);
         }
 
         return "";
-    }
-
-    /**
-     * Checks for the state's status and adds it to the queue if it's not visited.
-     * 
-     * @param state {State} the state to be processed
-     */
-    private void processState(State state)
-    {
-        if (!status.isLoss(state))
-        {
-            // do nothing
-        }
-        else if (!status.isRedundant(state) && !visitedStates.contains(state.getItems()));
-        {
-            queue.add(state);
-            // state.visit();
-            visitedStates.add(state.getItems());
-        }
     }
 
     /**
