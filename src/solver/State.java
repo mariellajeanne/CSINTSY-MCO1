@@ -1,46 +1,78 @@
 /**
- * @author <Full Name>
+ * @author <Ronnie M. Abiog Jr.>
  * 
  * Creates and manipulates states.
  */
 
 package solver;
+import java.util.*;
 
 /**
  * The state class.
- */
+*/
 public class State
 {
-    private char[][] map; // The map of the state.
-    private char[][] items; // The items of the state.
-    private int[] playerCoor; // The player coordinates.
-    private int[][] boxCoor; // The coordinates of all crates.
-    private State prevState; // The previous state before executing a move.
-    private char prevMove; // The previous move that leads to the current state.
-    // private String actions; // The action of the player to reach this state.
-    private boolean isVisited; // Determines if the state has already been visited.
+    private final char[][] map;     // The map of the state.
+    private final char[][] items;   // The items of the state.
+
+    private int[] playerCoor;               // The player coordinates.
+    private HashSet<int[]> boxCoor;         // The boxes' coordinates.
+    private HashSet<int[]> targetCoor;      // The targets' coordinates.
+    private static HashSet<int[]> wallCoor; // The walls' coordinates.
+
+    private final State prevState;  // The previous state before executing a move.
+    private final char prevMove;    // The previous move that leads to the current state.
+
+    private int[] boxPushed;        // The coordinates of the pushed box.
+
+    private boolean isVisited;      // Determines if the state has already been visited.
 
     /**
-     * Constructs the state.
+     * Constructs the initial state.
      * 
-     * @param map {char[][]} The map.
-     * @param items {char[][]} The items.
-     * @param playerCoor {int[]} The player coordinates.
-     * @param boxCoor {int [][]} The crates' coordinates.
-     * @param prevState {State} The previous state before executing a move.
-     * @param prevMove {char} The previous move that leads to the current state.
-    //  * @param actions {String} The actions leading to the state.
+     * @param map   {char[][]}  The map.
+     * @param items {char[][]}  The items.
      */
-    public State(char[][] map, char[][] items, int[] playerCoor, int[][] boxCoor,
-                State prevState, char prevMove)
+    public State(char[][] map, char[][] items)
     {
-        isVisited = false;
         this.map = map;
-        this.items = items; // getters make // check if shallow copy is enough
-        this.playerCoor = playerCoor; // getters make // check if shallow copy is enough
+        this.items = items;
+
+        setCoordinates();
+
+        this.prevState = null;
+        this.prevMove = ' ';
+
+        this.isVisited = false;
+    }
+
+    /**
+     * Constructs the next states.
+     * 
+     * @param map           {char[][]}          The map.
+     * @param items         {char[][]}          The items.
+     * 
+     * @param playerCoor    {int[]}             The player coordinates.
+     * @param boxCoor       {HashSet<int[]>}    The boxes' coordinates.
+     * @param targetCoor    {HashSet<int[]>}    The targets' coordinates.
+     * 
+     * @param prevState     {State}             The previous state before executing a move.
+     * @param prevMove      {char}              The previous move that leads to the current state.
+     */
+    public State(char[][] map, char[][] items, int[] playerCoor, HashSet<int[]> boxCoor,
+                 HashSet<int[]> targetCoor, State prevState, char prevMove)
+    {
+        this.map = map;
+        this.items = items;
+        
+        this.playerCoor = playerCoor;
         this.boxCoor = boxCoor;
+        this.targetCoor = targetCoor;
+        
         this.prevState = prevState;
         this.prevMove = prevMove;
+
+        isVisited = false;
     }
 
     /**
@@ -74,13 +106,33 @@ public class State
     }
 
     /**
-     * Returns the crates' coordinates.
+     * Returns the boxes' coordinates.
      * 
-     * @return {char[][]}
+     * @return {HashSet<int[]>}
      */
-    public char[][] getBoxCoor()
+    public HashSet<int[]> getBoxCoor()
     {
         return this.boxCoor;
+    }
+
+    /**
+     * Returns the targets' coordinates.
+     * 
+     * @return {HashSet<int[]>}
+     */
+    public HashSet<int[]> getTargetCoor()
+    {
+        return this.targetCoor;
+    }
+
+    /**
+     * Returns the walls' coordinates.
+     * 
+     * @return {HashSet<int[]>}
+     */
+    public HashSet<int[]> getWallCoor()
+    {
+        return State.wallCoor;
     }
 
     /**
@@ -102,16 +154,89 @@ public class State
     {
         return this.prevMove;
     }
-    
+
     /**
-     * Returns the actions leading to the state.
-     * 
-     * @return {String}
-     // may not be needed anymore
-    public String getActions()
+     * Sets the coordinates of each tile.
+     */
+    private void setCoordinates()
     {
-        return this.actions;
-    }*/
+        // Initialization of coordinate variables.
+        playerCoor = new int[2];
+        boxCoor = new HashSet<>();
+        targetCoor = new HashSet<>();
+        wallCoor = new HashSet<>();
+
+        // Sets the initial coordinates of the pushed box to (-1, -1).
+        boxPushed[0] = -1;
+        boxPushed[1] = -1;
+
+        // Sets the coordinates of the map and items.
+
+        // Checks each row.
+        for (int y = 0; y < 100; y++)
+        {
+            // Checks each column.
+            for (int x = 0; x < 100; x++)
+            {
+                // Checks the items data.
+                switch (items[y][x])
+                {
+                    case '$' -> { addCoor(boxCoor, x, y); }
+                    case '*' -> { addCoor(boxCoor, x, y); }
+                    case '@' -> { playerCoor[0] = x;
+                                  playerCoor[1] = y;      }
+                }
+
+                // Checks the map data.
+                switch (map[y][x])
+                {
+                    case '#' -> { addCoor(wallCoor, x, y);   }
+                    case '.' -> { addCoor(targetCoor, x, y); }
+                    case '*' -> { addCoor(targetCoor, x, y); }
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a coordinate to a set coordinates.
+     * 
+     * @param set   {HashSet<int[]>}    The set of coordinates.
+     * @param x     {int}               The x-coordinate.
+     * @param y     {int}               The y-coordinate.
+     */
+    private void addCoor(HashSet<int[]> set, int x, int y)
+    {
+        int[] coor = {x, y};
+        set.add(coor);
+    }
+
+    /**
+     * Removes a coordinate to a set coordinates.
+     * 
+     * @param set   {HashSet<int[]>}    The set of coordinates.
+     * @param x     {int}               The x-coordinate.
+     * @param y     {int}               The y-coordinate.
+     */
+    private void removeCoor(HashSet<int[]> set, int x, int y)
+    {
+        int[] coor = {x, y};
+        set.remove(coor);
+    }
+
+    /**
+     * Checks if a coordinate exists in a set of coordinates.
+     * 
+     * @param set   {HashSet<int[]>}    The set of coordinates.
+     * @param x     {int}               The x-coordinate.
+     * @param y     {int}               The y-coordinate.
+     * @return      {boolean}
+     */
+    private boolean containsCoor(HashSet<int[]> set, int x, int y)
+    {
+        int[] coor = {x, y};
+        return set.contains(coor);
+    }
 
     /**
      * Marks the state as visited.
@@ -120,8 +245,6 @@ public class State
     {
         this.isVisited = true;
     }
-
-    // check Search if we need an unvisit method
 
     /**
      * Determines if the state is visited.
@@ -134,141 +257,14 @@ public class State
     }
 
     /**
-     * Returns the state of the player moving up.
-     * Returns null if the move cannot or should not
-     * be made.
+     * Returns a new state resulting from player movement.
+     * Returns null if the could not or should not be made.
      * 
-     * @param map {char[][]} The map.
-     * @param items {char[][]} The items.
+     * @param move {char} The move made (left: 'l', right: 'r', up: 'u', down: 'd').
      * @return {State}
      */
-    public State up(char[][] map, char[][] items)
+    public State movePlayer(char move)
     {
-        /**
-         * TODO: code here
-         * 
-         * check if invalid move, return null if yes
-         * check if next move isLoss(), return null if yes
-         * check if next move is redundant, return null if yes
-         * 
-         * make the move
-         * create copy of coordinates
-         * change coordinates of affected
-         */
-
-         // current player position
-         int playerRow = playerCoor[0];
-         int playerCol = playerCoor[1];
-         int height = map.length;
-         int width = map[0].length;
-
-         // search for this in coordinates array
-         // next row if move is made
-         int nextRow = playerRow - 1;
-         int nextnextRow = playerRow - 2;
-
-         boolean nextTileCrate = false;
-         boolean crateBlocked = false;
-
-         //////////////////////////////////////////////////////////////////////////////
-         ////////////////////////////////////FIX////////////////////////////////////////
-         //////////////////////////////////////////////////////////////////////////////
-            // linear search in boxCoor for the nextTile and nextnextTile
-            for (int i = 0; i < boxCoor.length; i++)
-            {
-                if (boxCoor[i][0] == nextRow && boxCoor[i][1] == playerCol)
-                {
-                    nextTileCrate = true;
-
-                    if(map[nextnextRow][playerCol] == '#')
-                    {
-                        crateBlocked = true;
-                    }
-                    
-                }
-                else if (boxCoor[i][0] == nextnextRow && boxCoor[i][1] == playerCol)
-                {
-                    crateBlocked = true;
-                }
-            }
-
-         // check if next tile is a wall
-         if (map[nextRow][playerCol] == '#')
-         {
-            return null;
-         }
-         // check if crate is not moveable from the current state
-         else if (items[nextRow][playerCol] == '$')
-         {
-            if (map[nextnextRow][playerCol] == '#')
-            {
-                return null;
-            }
-            else if (items[nextnextRow][playerCol] == '$')
-            {
-                return null;
-            }
-         }
-
-         char[][]nextStateItems = new char[height][width];
-
-         // makes a copy of items
-         // create private method for this
-         for (int row = 0; row < height; row++)
-         {
-            for (int col = 0; col < width; col++)
-            {
-                nextStateItems[row][col] = items[row][col];
-            }
-         }
-
-         // perform the move in items copy
-         // create a private method for this
-         if (items[nextRow][playerCol] == '$')
-         {
-            nextStateItems[nextnextRow][playerCol] = '$';
-            nextStateItems[nextRow][playerCol] = '@';
-            nextStateItems[playerRow][playerCol] = ' ';
-         }
-         else
-         {
-            nextStateItems[nextRow][playerCol] = '@';
-            nextStateItems[playerRow][playerCol] = ' ';
-         }
-
-         State nextState = new State(map, nextStateItems, this, 'u');
-         Status s = Status.getInstance();
-         
-         // check if next move is desirable
-         // create private method for this? nah short lang naman
-         if (s.isLoss(nextState) || s.isRedundant(nextState))
-         {
-            return null;
-         }
-
-         else
-         {
-            return nextState;
-         }
-    }
-
-    /**
-     * TODO: do the same for other directions
-     * 
-     */
-
-    public State down(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
-    }
-
-    public State left(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
-    }
-
-    public State right(char[][] map, char[][] items)
-    {
-        return new State(map, items, ""); // TODO: Please edit this.
+        return new State(map, items, playerCoor, boxCoor, targetCoor, prevState, prevMove);
     }
 }
