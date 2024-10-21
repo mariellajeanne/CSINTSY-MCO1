@@ -255,22 +255,113 @@ public class State
      */
     private boolean isLoss()
     {
-        // Check if in a corner (includes L-shape), not in a target
-        // Check if in an enclosed edge without gaps ([-shape)
-        // Check if pushed to a wall with another box adjacent to it
-
-        // Recursion for checking immovable boxes ([-shape)
-        // Consider if a target is available
-        
-        // Checks if the box is trapped in a corner.
-        if ((containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) ||
-            containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1])) &&
-            (containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1) ||
-            containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1)))
-        {
+        if (isStuckInCorner())
             return true;
+        else if (isAtEdgeWithNoGoal())
+            return true;
+        else if (isClumpedUp())
+            return true;
+
+        return false;
+    }
+
+    private boolean isStuckInCorner()
+    {
+        // checks if box is on a target
+        if (containsCoor(targetCoor, boxPushed))
+            return false;
+
+        // checks if box is in a corner
+        if (containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1))
+            return true;
+        else if (containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1))
+            return true;
+        else if (containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1))
+            return true;
+        else if (containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1))
+            return true;
+        else
+            return false;
+    }
+
+    private boolean isAtEdgeWithNoGoal() 
+    {
+        //TODO: finish this
+        return false;
+    }
+
+    //brute force :( couldnt cook up a better solution
+    private boolean isClumpedUp()
+    {
+        int x = boxPushed[0];
+        int y = boxPushed[1];
+
+        if (containsCoor(boxCoor, x, y) &&
+            containsCoor(boxCoor, x + 1, y) &&
+            containsCoor(boxCoor, x, y + 1) &&
+            containsCoor(boxCoor, x + 1, y + 1)) 
+        {
+            if (!containsCoor(targetCoor, x, y) ||
+                !containsCoor(targetCoor, x + 1, y) ||
+                !containsCoor(targetCoor, x, y + 1) ||
+                !containsCoor(targetCoor, x + 1, y + 1)) 
+            {
+                return true; 
+            }
+        }
+
+        if (containsCoor(boxCoor, x - 1, y) &&
+            containsCoor(boxCoor, x, y) &&
+            containsCoor(boxCoor, x - 1, y + 1) &&
+            containsCoor(boxCoor, x, y + 1)) 
+        {
+            if (!containsCoor(targetCoor, x - 1, y) ||
+                !containsCoor(targetCoor, x, y) ||
+                !containsCoor(targetCoor, x - 1, y + 1) ||
+                !containsCoor(targetCoor, x, y + 1)) 
+            {
+                return true; 
+            }
+        }
+
+        if (containsCoor(boxCoor, x, y - 1) &&
+            containsCoor(boxCoor, x + 1, y - 1) &&
+            containsCoor(boxCoor, x, y) &&
+            containsCoor(boxCoor, x + 1, y)) 
+        {
+            if (!containsCoor(targetCoor, x, y - 1) ||
+                !containsCoor(targetCoor, x + 1, y - 1) ||
+                !containsCoor(targetCoor, x, y) ||
+                !containsCoor(targetCoor, x + 1, y)) 
+            {
+                return true; 
+            }
+        }
+        if (containsCoor(boxCoor, x - 1, y - 1) &&
+            containsCoor(boxCoor, x, y - 1) &&
+            containsCoor(boxCoor, x - 1, y) &&
+            containsCoor(boxCoor, x, y)) 
+        {
+            if (!containsCoor(targetCoor, x - 1, y - 1) ||
+                !containsCoor(targetCoor, x, y - 1) ||
+                !containsCoor(targetCoor, x - 1, y) ||
+                !containsCoor(targetCoor, x, y)) 
+            {
+                return true; 
+            }
         }
 
         return false;
     }
 }
+
+/**
+ * isLose pseudo:
+ *     for each box:
+ *          if stuck in corner(touching 2 walls)
+ *              lose
+ *          if at edge of the map with no goal in the same row/col depending on how its stuck to the wall
+ *              lose
+ *          if 4 boxes are clumped up
+ *              lose
+ */
