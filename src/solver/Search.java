@@ -15,25 +15,14 @@ public class Search
     // The single instance of the search class.
     private static Search search;
 
-    // The single instance of the status class.
-    private static Status status;
-
-    // The set of visited box coor states.
-    private HashSet<HashSet<int[]>> visitedStates = new HashSet<>();
+    // The set of visited playerCoor and boxCoor states.
+    private HashSet<C<Object[]>> visitedStates = new HashSet<>();
 
     private Queue<State> queue = new ArrayDeque<>();
 
     private final char[] moves = {'l', 'r', 'u', 'd'};
     private final int[] offsetx = {-1, 1, 0, 0};
     private final int[] offsety = {0, 0, -1, 1};
-
-    /**
-     * Constructs the single search instance.
-     */
-    private Search()
-    {
-        status = Status.getInstance();
-    }
 
     /**
      * Returns the single instance of the class.
@@ -59,13 +48,13 @@ public class Search
     {
         queue.add(startingState);
         // startingState.visit();
-        visitedStates.add(startingState.getBoxCoor());
+        addToVisitedStates(startingState);
 
         while (!queue.isEmpty())
         {
             State currState = queue.poll();
 
-            if (status.isWin(currState))
+            if (currState.boxCoor.equals(State.targetCoor))
             {
                 return reversePath(currState);
             }
@@ -78,14 +67,14 @@ public class Search
                 {
                     continue;
                 }
-                if (status.isWin(nextState))
+                if (nextState.boxCoor.equals(State.targetCoor))
                 {
                     return reversePath(nextState);
                 }
-                if (!visitedStates.contains(nextState.getBoxCoor()))
+                if (!isVisited(nextState))
                 {
                     queue.add(nextState);
-                    visitedStates.add(nextState.getBoxCoor());
+                    addToVisitedStates(nextState);
                 }
             }
         }
@@ -101,15 +90,38 @@ public class Search
      */
     private String reversePath(State endState)
     {
-        StringBuilder path = new StringBuilder(endState.getPrevMove());
+        StringBuilder path = new StringBuilder(endState.prevMove);
 
-        State currState = endState.getPrevState();
+        State currState = endState.prevState;
         while (currState != null)
         {
-            path.append(currState.getPrevMove());
-            currState = currState.getPrevState();
+            path.append(currState.prevMove);
+            currState = currState.prevState;
         }
 
         return path.reverse().toString();
+    }
+
+    /**
+     * Adds the state to the visited states.
+     * 
+     * @param state {State} the state to add
+     */
+    private void addToVisitedStates(State state)
+    {
+        Object[] stateArr = {state.playerCoor, state.boxCoor};
+        visitedStates.add(new C<Object[]>(stateArr));
+    }
+
+    /**
+     * Checks if the state has already been visited.
+     * 
+     * @param state {State} the state to check
+     * @return {boolean}
+     */
+    private boolean isVisited(State state)
+    {
+        Object[] stateArr = {state.playerCoor, state.boxCoor};
+        return visitedStates.contains(new C<Object[]>(stateArr));
     }
 }
