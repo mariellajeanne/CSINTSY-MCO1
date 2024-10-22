@@ -32,12 +32,13 @@ public class State
      */
     public State(char[][] map, char[][] items)
     {
+        this.boxPushed = new int[2];
+        
         setCoordinates(map, items);
 
         this.prevState = null;
         this.prevMove = ' ';
 
-        this.boxPushed = new int[2];
         this.boxPushed[0] = -1;
         this.boxPushed[1] = -1;
 
@@ -93,10 +94,10 @@ public class State
         // Sets the coordinates of the map and items.
 
         // Checks each row.
-        for (int y = 0; y < 100; y++)
+        for (int y = 0; y < map.length; y++)
         {
             // Checks each column.
-            for (int x = 0; x < 100; x++)
+            for (int x = 0; x < map[0].length; x++)
             {
                 // Checks the map data.
                 switch (map[y][x])
@@ -230,8 +231,10 @@ public class State
         // The next tile does not contain a wall nor a box.
         else
         {
+            if (prevState == null) { /* do nothing */ }
+
             // Checks if the move is redundant.
-            if ((move == 'l' && prevState.prevMove == 'r') ||
+            else if ((move == 'l' && prevState.prevMove == 'r') ||
                 (move == 'r' && prevState.prevMove == 'l') ||
                 (move == 'u' && prevState.prevMove == 'd') ||
                 (move == 'd' && prevState.prevMove == 'u'))
