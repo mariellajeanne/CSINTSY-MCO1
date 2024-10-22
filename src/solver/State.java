@@ -337,14 +337,14 @@ public class State
             if ((isCurrWall && (isNextWall || (isNextBox && isCornerObs))) ||
                 (isCurrBox && isCornerObs && (isNextWall || isNextBox)))
                 {
-                    System.out.println("is stuck");
-                    System.out.print(" i="+i);
-                    System.out.print(" j="+j);
-                    System.out.print(" isCurrWall="+isCurrWall);
-                    System.out.print(" isCurrBox="+isCurrBox);
-                    System.out.print(" isNextWall="+isNextWall);
-                    System.out.print(" isNextBox="+isNextBox);
-                    System.out.println(" isCornerObs="+isCornerObs);
+                    // System.out.println("is stuck");
+                    // System.out.print(" i="+i);
+                    // System.out.print(" j="+j);
+                    // System.out.print(" isCurrWall="+isCurrWall);
+                    // System.out.print(" isCurrBox="+isCurrBox);
+                    // System.out.print(" isNextWall="+isNextWall);
+                    // System.out.print(" isNextBox="+isNextBox);
+                    // System.out.println(" isCornerObs="+isCornerObs);
                     return true;
                 }
         }

@@ -70,28 +70,21 @@ public class Search
 
             // go through each of the next states (left, right, up, down):
             for (int i = 0; i < 4; i++) {
-                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
                 System.out.println();
                 System.out.println("move: " + moves[i]);
-                if (nextState == null)
-                {
-                    System.out.println("nextState is null");
-                    continue;
-                }
-                System.out.println("prev moves: " + reversePath(nextState));
-                if (nextState.boxCoor.equals(State.targetCoor))
-                {
-                    System.out.println("nextState is target");
-                    return reversePath(nextState);
-                }
-                if (!visitedStates.contains(nextState.getHashCode()))
+                System.out.println("prev move: " + currState.prevMove);
+                System.out.println("current path: " + reversePath(currState) + ".");
+                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                if (nextState != null && !visitedStates.contains(nextState.getHashCode()))
                 {
                     queue.add(nextState);
-                    visitedStates.add((nextState.getHashCode()));
-                    System.out.println("nextState added to queue & visited");
+                    visitedStates.add(nextState.getHashCode());
+                    System.out.println("added next state");
                 }
                 System.out.println("queue size: " + queue.size());
+                System.out.println("queue: " + queue);
                 System.out.println("visited states size: " + visitedStates.size());
+                System.out.println("visited states: " + visitedStates);
             }
         }
 
@@ -152,7 +145,8 @@ public class Search
      */
     private String reversePath(State endState)
     {
-        StringBuilder path = new StringBuilder(endState.prevMove);
+        StringBuilder path = new StringBuilder();
+        path.append(endState.prevMove);
 
         State currState = endState.prevState;
         while (currState != null)
