@@ -257,8 +257,8 @@ public class State
     {
         if (isStuckInCorner())
             return true;
-        else if (isAtEdgeWithNoGoal())
-            return true;
+        // else if (isAtEdgeWithNoGoal())
+        //     return true;
         else if (isClumpedUp())
             return true;
 
@@ -270,24 +270,44 @@ public class State
         // checks if box is on a target
         if (containsCoor(targetCoor, boxPushed))
             return false;
-
-        // checks if box is in a corner
-        if (containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1))
-            return true;
-        else if (containsCoor(wallCoor, boxPushed[0] - 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1))
-            return true;
-        else if (containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] - 1))
-            return true;
-        else if (containsCoor(wallCoor, boxPushed[0] + 1, boxPushed[1]) && containsCoor(wallCoor, boxPushed[0], boxPushed[1] + 1))
-            return true;
-        else
+            int x = boxPushed[0];
+            int y = boxPushed[1];
+        
+            // Check if the box is in a corner formed by walls
+            if (containsCoor(wallCoor, x - 1, y) && containsCoor(wallCoor, x, y + 1))
+                return true;
+            else if (containsCoor(wallCoor, x - 1, y) && containsCoor(wallCoor, x, y - 1))
+                return true;
+            else if (containsCoor(wallCoor, x + 1, y) && containsCoor(wallCoor, x, y - 1))
+                return true;
+            else if (containsCoor(wallCoor, x + 1, y) && containsCoor(wallCoor, x, y + 1))
+                return true;
+            
+            //if box is beside another immoveable box
+            if ((containsCoor(wallCoor, x, y + 1) || containsCoor(wallCoor, x, y - 1)) && 
+                ((containsCoor(boxCoor, x + 1, y) && wallAboveOrBelow(x + 1, y)) || 
+                (containsCoor(boxCoor, x - 1, y) && wallAboveOrBelow(x - 1, y))))
+            {
+                    return true;
+            }
+            else if ((containsCoor(wallCoor, x + 1, y) || containsCoor(wallCoor, x - 1, y)) && 
+            ((containsCoor(boxCoor, x, y + 1) && wallBeside(x, y + 1)) || 
+            (containsCoor(boxCoor, x, y - 1) && wallBeside(x, y - 1))))
+            {
+                return true;
+            }
+                
             return false;
     }
 
-    private boolean isAtEdgeWithNoGoal() 
+    private boolean wallAboveOrBelow(int x, int y)
     {
-        //TODO: finish this
-        return false;
+        return containsCoor(wallCoor, x, y + 1) || containsCoor(wallCoor, x, y - 1);
+    }
+
+    private boolean wallBeside(int x, int y)
+    {
+        return containsCoor(wallCoor, x + 1, y) || containsCoor(wallCoor, x - 1, y);
     }
 
     private boolean isClumpedUp()
@@ -332,8 +352,6 @@ public class State
  * isLose pseudo:
  *     for each box:
  *          if stuck in corner(touching 2 walls)
- *              lose
- *          if at edge of the map with no goal in the same row/col depending on how its stuck to the wall
  *              lose
  *          if 4 boxes are clumped up
  *              lose
