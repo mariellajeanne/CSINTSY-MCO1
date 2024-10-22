@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * The search class.
-*/
+ */
 public class Search
 {
     // The single instance of the search class.
@@ -52,14 +52,21 @@ public class Search
         queue.add(startingState);
         // startingState.visit();
         visitedStates.add(startingState.getHashCode());
-        System.out.println("added starting state");
+        // System.out.println("added starting state");
+
+        ArrayList<String> wallCoorList = new ArrayList<>(State.wallCoor);
+        Collections.sort(wallCoorList);
+        System.out.println("Wall Coors: " + wallCoorList);
+        System.out.println("Target Coors: " + State.targetCoor);
 
         while (!queue.isEmpty())
         {
             State currState = queue.poll();
-            System.out.println("===========");
-            System.out.println("dequeue");
+            System.out.println("\n===========");
+            // System.out.println("dequeue");
             System.out.println("queue size: " + queue.size());
+            System.out.println("\nBox Coors: " + currState.boxCoor);
+            System.out.println("Player Coor: " + currState.playerCoor);
 
             if (currState.boxCoor.equals(State.targetCoor))
             {
@@ -70,25 +77,41 @@ public class Search
 
             // go through each of the next states (left, right, up, down):
             for (int i = 0; i < 4; i++) {
-                System.out.println();
-                System.out.println("move: " + moves[i]);
-                System.out.println("prev move: " + currState.prevMove);
-                System.out.println("current path: " + reversePath(currState) + ".");
-                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
-                if (nextState != null && !visitedStates.contains(nextState.getHashCode()))
+                
+                System.out.println("");
+                System.out.println("+ move: " + moves[i]);    
+                State nextState = State.movePlayer(new State(currState), moves[i], offsetx[i], offsety[i]);
+                
+                
+                if (nextState == null)
+                {
+                    System.out.println("nextState: null");
+                    continue;
+                }
+                System.out.println("@ Box Coors: " + nextState.boxCoor);
+                System.out.println("@ Player Coor: " + nextState.playerCoor);
+                
+                System.out.println("prev moves: " + reversePath(nextState));
+                
+                if (nextState.boxCoor.equals(State.targetCoor))
+                {
+                    System.out.println("nextState: target");
+                    return reversePath(nextState);
+                }
+                
+                if (!visitedStates.contains(nextState.getHashCode()))
                 {
                     queue.add(nextState);
-                    visitedStates.add(nextState.getHashCode());
-                    System.out.println("added next state");
+                    visitedStates.add((nextState.getHashCode()));
+                    System.out.println("nextState: added to queue & visited");
                 }
-                System.out.println("queue size: " + queue.size());
-                System.out.println("queue: " + queue);
+                
+                System.out.print("> queue size: " + queue.size() + " | ");
                 System.out.println("visited states size: " + visitedStates.size());
-                System.out.println("visited states: " + visitedStates);
             }
         }
 
-        System.out.println("return empty string");
+        System.out.println("\nreturn empty string");
         return "";
     }
 
@@ -117,7 +140,7 @@ public class Search
 
             // go through each of the next states (left, right, up, down):
             for (int i = 0; i < 4; i++) {
-                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                State nextState = State.movePlayer(new State(currState), moves[i], offsetx[i], offsety[i]);
                 if (nextState == null)
                 {
                     continue;
@@ -145,8 +168,7 @@ public class Search
      */
     private String reversePath(State endState)
     {
-        StringBuilder path = new StringBuilder();
-        path.append(endState.prevMove);
+        StringBuilder path = new StringBuilder(endState.prevMove);
 
         State currState = endState.prevState;
         while (currState != null)
