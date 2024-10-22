@@ -12,16 +12,16 @@ import java.util.*;
  */
 public class State
 {
-    public String playerCoor;                 // The player coordinates.
-    public HashSet<String> boxCoor;           // The boxes' coordinates.
-    public static HashSet<String> targetCoor; // The targets' coordinates.
-    public static HashSet<String> wallCoor;   // The walls' coordinates.
-
     public final State prevState;  // The previous state before executing a move.
     public final char prevMove;    // The previous move that leads to the current state.
     public final Heuristic heuristic; // The heuristic value of the state.
 
-    public String boxPushedCoor;   // The coordinates of the pushed box.
+    public static HashSet<String> wallCoor;   // The walls' coordinates.
+    public static HashSet<String> targetCoor; // The targets' coordinates.
+
+    public String playerCoor;       // The player coordinates.
+    public HashSet<String> boxCoor; // The boxes' coordinates.
+    public String boxPushedCoor;    // The coordinates of the pushed box.
 
     public boolean isVisited; // Determines if the state has already been visited.
 
@@ -37,8 +37,6 @@ public class State
 
         this.prevState = null;
         this.prevMove = ' ';
-
-        this.boxPushedCoor = ""; // !REDUNDANT
 
         this.isVisited = false;
 
@@ -66,7 +64,7 @@ public class State
         this.prevState = prevState;
         this.prevMove = prevMove;
 
-        this.boxPushedCoor = "";
+        this.boxPushedCoor = " ";
 
         this.isVisited = false;
         
@@ -81,12 +79,19 @@ public class State
     public State(State other)
     {
         this.playerCoor = other.playerCoor;
-        this.boxCoor = other.boxCoor;
-        this.prevState = other.prevState;
-        this.prevMove = other.prevMove;
-        this.boxPushedCoor = other.boxPushedCoor;
+        this.boxCoor = new HashSet<>(other.boxCoor);
+        
+        this.boxPushedCoor = " ";
         this.isVisited = other.isVisited;
-        this.heuristic = other.heuristic;
+
+        this.prevMove = other.prevMove;
+
+        if (other.prevState != null)
+            this.prevState = new State(other.prevState);
+        else
+            this.prevState = null;
+
+        this.heuristic = new Heuristic(other);
     }
 
     /**
@@ -98,13 +103,13 @@ public class State
     private void setCoordinates(char[][] map, char[][] items)
     {
         // Initialization of coordinate variables.
-        playerCoor = "";
+        playerCoor = " ";
         boxCoor = new HashSet<>();
         targetCoor = new HashSet<>();
         wallCoor = new HashSet<>();
 
         // Sets the initial coordinates of the pushed box.
-        boxPushedCoor = "";
+        boxPushedCoor = " ";
 
         // Sets the coordinates of the map and items.
 

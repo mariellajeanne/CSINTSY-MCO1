@@ -147,7 +147,7 @@ public class Search
                 }
                 if (nextState.boxCoor.equals(State.targetCoor))
                 {
-                    return reversePath(nextState);
+                    return reversePath(nextState) + moves[i];
                 }
                 if (!visitedStates.contains(nextState.getHashCode()))
                 {
