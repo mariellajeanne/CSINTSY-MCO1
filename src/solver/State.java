@@ -244,14 +244,20 @@ public class State
 
         // Checks if the next tile contains a wall.
         if (wallCoor.contains(nextTile1))
+        {
+            System.out.println("nextTile1 wall");
             return null;
+        }
 
         // Checks if the next tile contains a box.
         if (boxCoor.contains(nextTile1))
         {
             // Checks if the box is immovable.
             if (boxCoor.contains(nextTile2) || wallCoor.contains(nextTile2))
+            {
+                System.out.println("immovable");
                 return null;
+            }
 
             // Updates the coordinates of the pushed box.
             boxCoor.remove(nextTile1);
@@ -260,7 +266,10 @@ public class State
 
             // Checks if the move results in a loss.
             if (!targetCoor.contains(boxPushedCoor) && isStuck())
+            {
+                System.out.println("stuck");
                 return null;
+            }
         }
 
         // The next tile does not contain a wall nor a box.
@@ -273,7 +282,10 @@ public class State
                 (move == 'r' && prevState.prevMove == 'l') ||
                 (move == 'u' && prevState.prevMove == 'd') ||
                 (move == 'd' && prevState.prevMove == 'u'))
-                return null;
+                {
+                    System.out.println("redundant");
+                    return null;
+                }
         }
 
         // Updates the player's location.
@@ -324,7 +336,17 @@ public class State
 
             if ((isCurrWall && (isNextWall || (isNextBox && isCornerObs))) ||
                 (isCurrBox && isCornerObs && (isNextWall || isNextBox)))
-                return true;
+                {
+                    System.out.println("is stuck");
+                    System.out.print(" i="+i);
+                    System.out.print(" j="+j);
+                    System.out.print(" isCurrWall="+isCurrWall);
+                    System.out.print(" isCurrBox="+isCurrBox);
+                    System.out.print(" isNextWall="+isNextWall);
+                    System.out.print(" isNextBox="+isNextBox);
+                    System.out.println(" isCornerObs="+isCornerObs);
+                    return true;
+                }
         }
 
         return false;

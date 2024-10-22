@@ -51,14 +51,19 @@ public class Search
     {
         queue.add(startingState);
         // startingState.visit();
-        addToVisitedStates(startingState);
+        visitedStates.add(startingState.getHashCode());
+        System.out.println("added starting state");
 
         while (!queue.isEmpty())
         {
             State currState = queue.poll();
+            System.out.println("===========");
+            System.out.println("dequeue");
+            System.out.println("queue size: " + queue.size());
 
             if (currState.boxCoor.equals(State.targetCoor))
             {
+                System.out.println("target reached");
                 return reversePath(currState);
             }
 
@@ -66,22 +71,31 @@ public class Search
             // go through each of the next states (left, right, up, down):
             for (int i = 0; i < 4; i++) {
                 State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                System.out.println();
+                System.out.println("move: " + moves[i]);
                 if (nextState == null)
                 {
+                    System.out.println("nextState is null");
                     continue;
                 }
+                System.out.println("prev moves: " + reversePath(nextState));
                 if (nextState.boxCoor.equals(State.targetCoor))
                 {
+                    System.out.println("nextState is target");
                     return reversePath(nextState);
                 }
-                if (!isVisited(nextState))
+                if (!visitedStates.contains(nextState.getHashCode()))
                 {
                     queue.add(nextState);
-                    addToVisitedStates(nextState);
+                    visitedStates.add((nextState.getHashCode()));
+                    System.out.println("nextState added to queue & visited");
                 }
+                System.out.println("queue size: " + queue.size());
+                System.out.println("visited states size: " + visitedStates.size());
             }
         }
 
+        System.out.println("return empty string");
         return "";
     }
 
@@ -96,7 +110,7 @@ public class Search
     public String getSequenceGBFS(State startingState)
     {
         pQueue.add(startingState);
-        addToVisitedStates(startingState);
+        visitedStates.add((startingState.getHashCode()));
 
         while (!pQueue.isEmpty())
         {
@@ -119,10 +133,10 @@ public class Search
                 {
                     return reversePath(nextState);
                 }
-                if (!isVisited(nextState))
+                if (!visitedStates.contains(nextState.getHashCode()))
                 {
                     pQueue.add(nextState);
-                    addToVisitedStates(nextState);
+                    visitedStates.add((nextState.getHashCode()));
                 }
             }
         }
@@ -148,26 +162,5 @@ public class Search
         }
 
         return path.reverse().toString();
-    }
-
-    /**
-     * Adds the state to the visited states.
-     * 
-     * @param state {State} the state to add
-     */
-    private void addToVisitedStates(State state)
-    {
-        visitedStates.add(state.getHashCode());
-    }
-
-    /**
-     * Checks if the state has already been visited.
-     * 
-     * @param state {State} the state to check
-     * @return {boolean}
-     */
-    private boolean isVisited(State state)
-    {
-        return visitedStates.contains(state.getHashCode());
     }
 }
