@@ -16,7 +16,7 @@ public class Search
     private static Search search;
 
     // The set of visited playerCoor and boxCoor states.
-    private HashSet<C<Object[]>> visitedStates = new HashSet<>();
+    private HashSet<Object[]> visitedStates = new HashSet<>();
 
     private Queue<State> queue = new ArrayDeque<>();
 
@@ -110,7 +110,7 @@ public class Search
     private void addToVisitedStates(State state)
     {
         Object[] stateArr = {state.playerCoor, state.boxCoor};
-        visitedStates.add(new C<>(stateArr));
+        visitedStates.add(stateArr);
     }
 
     /**
@@ -122,6 +122,6 @@ public class Search
     private boolean isVisited(State state)
     {
         Object[] stateArr = {state.playerCoor, state.boxCoor};
-        return visitedStates.contains(new C<>(stateArr));
+        return visitedStates.contains(stateArr);
     }
 }

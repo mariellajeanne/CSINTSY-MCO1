@@ -13,9 +13,9 @@ import java.util.*;
 public class State
 {
     public int[] playerCoor;                    // The player coordinates.
-    public HashSet<C<int[]>> boxCoor;           // The boxes' coordinates.
-    public static HashSet<C<int[]>> targetCoor; // The targets' coordinates.
-    public static HashSet<C<int[]>> wallCoor;   // The walls' coordinates.
+    public HashSet<int[]> boxCoor;           // The boxes' coordinates.
+    public static HashSet<int[]> targetCoor; // The targets' coordinates.
+    public static HashSet<int[]> wallCoor;   // The walls' coordinates.
 
     public final State prevState;  // The previous state before executing a move.
     public final char prevMove;    // The previous move that leads to the current state.
@@ -58,7 +58,7 @@ public class State
      * @param prevState     {State}             The previous state before executing a move.
      * @param prevMove      {char}              The previous move that leads to the current state.
      */
-    public State(int[] playerCoor, HashSet<C<int[]>> boxCoor, State prevState, char prevMove)
+    public State(int[] playerCoor, HashSet<int[]> boxCoor, State prevState, char prevMove)
     {
         this.playerCoor = playerCoor;
         this.boxCoor = boxCoor;
@@ -126,10 +126,10 @@ public class State
      * @param x     {int} The x-coordinate.
      * @param y     {int} The y-coordinate.
      */
-    private void addCoor(HashSet<C<int[]>> set, int x, int y)
+    private void addCoor(HashSet<int[]> set, int x, int y)
     {
         int[] coor = {x, y};
-        set.add(new C<>(coor));
+        set.add(coor);
     }
 
     // /**
@@ -154,10 +154,10 @@ public class State
      * @param y     {int}               The y-coordinate.
      * @return      {boolean}
      */
-    private boolean containsCoor(HashSet<C<int[]>> set, int x, int y)
+    private boolean containsCoor(HashSet<int[]> set, int x, int y)
     {
         int[] coor = {x, y};
-        return set.contains(new C<>(coor));
+        return set.contains(coor);
     }
 
     /**
@@ -168,9 +168,9 @@ public class State
      * @param coor  {int[]} The x and y coordinate pair.
      * @return      {boolean}
      */
-    private boolean containsCoor(HashSet<C<int[]>> set, int[] coor)
+    private boolean containsCoor(HashSet<int[]> set, int[] coor)
     {
-        return set.contains(new C<>(coor));
+        return set.contains(coor);
     }
 
     /**
@@ -207,19 +207,19 @@ public class State
             {playerCoor[0] + (xOffset * 2), playerCoor[1] + (yOffset * 2)}};
 
         // Checks if the next tile contains a wall.
-        if (wallCoor.contains(new C<>(nextTiles[0])))
+        if (wallCoor.contains(nextTiles[0]))
             return null;
 
         // Checks if the next tile contains a box.
-        if (boxCoor.contains(new C<>(nextTiles[0])))
+        if (boxCoor.contains(nextTiles[0]))
         {
             // Checks if the box is immovable.
-            if (boxCoor.contains(new C<>(nextTiles[1])) || wallCoor.contains(new C<>(nextTiles[1])))
+            if (boxCoor.contains(nextTiles[1]) || wallCoor.contains(nextTiles[1]))
                 return null;
 
             // Updates the coordinates of the pushed box.
-            boxCoor.remove(new C<>(nextTiles[0]));
-            boxCoor.add(new C<>(nextTiles[1]));
+            boxCoor.remove(nextTiles[0]);
+            boxCoor.add(nextTiles[1]);
             boxPushed[0] = nextTiles[1][0];
             boxPushed[1] = nextTiles[1][1];
 

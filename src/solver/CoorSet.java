@@ -9,9 +9,9 @@ import java.util.*;
 public class CoorSet {
     public String coors; // Format: "playerCoor:boxCoor1,boxCoor2,..."
 
-    public CoorSet(int[] playerCoor, HashSet<C<int[]>> boxCoor) {
+    public CoorSet(int[] playerCoor, HashSet<int[]> boxCoor) {
         this.coors = "" + playerCoor[0] + playerCoor[1] + ":";
-        for (C<int[]> box : boxCoor) {
+        for (int[] box : boxCoor) {
             this.coors += box[0] + box[1] + ",";
         }
     }
