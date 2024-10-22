@@ -257,8 +257,6 @@ public class State
     {
         if (isStuckInCorner())
             return true;
-        // else if (isAtEdgeWithNoGoal())
-        //     return true;
         else if (isClumpedUp())
             return true;
 
@@ -283,7 +281,7 @@ public class State
             else if (containsCoor(wallCoor, x + 1, y) && containsCoor(wallCoor, x, y + 1))
                 return true;
             
-            //if box is beside another immoveable box
+            //if box is adjacent to wall and another immoveable box
             if ((containsCoor(wallCoor, x, y + 1) || containsCoor(wallCoor, x, y - 1)) && 
                 ((containsCoor(boxCoor, x + 1, y) && wallAboveOrBelow(x + 1, y)) || 
                 (containsCoor(boxCoor, x - 1, y) && wallAboveOrBelow(x - 1, y))))
