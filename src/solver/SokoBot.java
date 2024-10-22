@@ -9,7 +9,7 @@ public class SokoBot {
 
     State state = new State(mapData, itemsData);
     Search search = Search.getInstance();
-    return search.getSequence(state);
+    return search.getSequenceBFS(state);
   }
 
 }

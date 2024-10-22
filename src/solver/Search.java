@@ -20,6 +20,9 @@ public class Search
 
     private Queue<State> queue = new ArrayDeque<>();
 
+    // TODO: Create comparator for heuristic values
+    private PriorityQueue<State> pQueue = new PriorityQueue<>();
+
     private final char[] moves = {'l', 'r', 'u', 'd'};
     private final int[] offsetx = {-1, 1, 0, 0};
     private final int[] offsety = {0, 0, -1, 1};
@@ -37,14 +40,14 @@ public class Search
     }
 
     /**
-     * Returns the sequence of the goal state's moves.
+     * Returns the sequence of the goal state's moves using Breadth-First Search.
      * Returns "" otherwise.
      * 
      * @param startingState {State} the starting state
      * 
      * @return {String}
      */
-    public String getSequence(State startingState)
+    public String getSequenceBFS(State startingState)
     {
         queue.add(startingState);
         // startingState.visit();
@@ -74,6 +77,51 @@ public class Search
                 if (!isVisited(nextState))
                 {
                     queue.add(nextState);
+                    addToVisitedStates(nextState);
+                }
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * Returns the sequence of the goal state's moves using Greedy Best-First Search.
+     * Returns "" otherwise.
+     * 
+     * @param startingState {State} the starting state
+     * 
+     * @return {String}
+     */
+    public String getSequenceGBFS(State startingState)
+    {
+        pQueue.add(startingState);
+        addToVisitedStates(startingState);
+
+        while (!pQueue.isEmpty())
+        {
+            State currState = pQueue.poll();
+
+            if (currState.boxCoor.equals(State.targetCoor))
+            {
+                return reversePath(currState);
+            }
+
+
+            // go through each of the next states (left, right, up, down):
+            for (int i = 0; i < 4; i++) {
+                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                if (nextState == null)
+                {
+                    continue;
+                }
+                if (nextState.boxCoor.equals(State.targetCoor))
+                {
+                    return reversePath(nextState);
+                }
+                if (!isVisited(nextState))
+                {
+                    pQueue.add(nextState);
                     addToVisitedStates(nextState);
                 }
             }
