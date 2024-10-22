@@ -278,10 +278,10 @@ public class State
             if (prevState == null) { /* do nothing */ }
 
             // Checks if the move is redundant.
-            else if ((move == 'l' && prevState.prevMove == 'r') ||
-                (move == 'r' && prevState.prevMove == 'l') ||
-                (move == 'u' && prevState.prevMove == 'd') ||
-                (move == 'd' && prevState.prevMove == 'u'))
+            else if ((move == 'l' && this.prevMove == 'r') ||
+                (move == 'r' && this.prevMove == 'l') ||
+                (move == 'u' && this.prevMove == 'd') ||
+                (move == 'd' && this.prevMove == 'u'))
                 {
                     System.out.println("redundant");
                     return null;
