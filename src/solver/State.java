@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * The state class.
-*/
+ */
 public class State
 {
     public String playerCoor;                 // The player coordinates.
@@ -37,7 +37,7 @@ public class State
         this.prevState = null;
         this.prevMove = ' ';
 
-        this.boxPushedCoor = "";
+        this.boxPushedCoor = ""; // !REDUNDANT
 
         this.isVisited = false;
     }
@@ -66,6 +66,21 @@ public class State
         this.boxPushedCoor = "";
 
         this.isVisited = false;
+    }
+
+    /**
+     * Creates a deep copy of a state.
+     * 
+     * @param other {State} The state to copy.
+     */
+    public State(State other)
+    {
+        this.playerCoor = other.playerCoor;
+        this.boxCoor = other.boxCoor;
+        this.prevState = other.prevState;
+        this.prevMove = other.prevMove;
+        this.boxPushedCoor = other.boxPushedCoor;
+        this.isVisited = other.isVisited;
     }
 
     /**
@@ -142,7 +157,7 @@ public class State
      * @param y {int} The y coordinate.
      * @return {boolean}
      */
-    public boolean conCoor(HashSet<String> set, int x, int y)
+    public static boolean conCoor(HashSet<String> set, int x, int y)
     {
         return set.contains(x + "," + y + ".");
     }
@@ -154,7 +169,7 @@ public class State
      * @param y {int} The y coordinate.
      * @return {String}
      */
-    public String strCoor(int x, int y)
+    public static String strCoor(int x, int y)
     {
         return (x + "," + y + ".");
     }
@@ -165,7 +180,7 @@ public class State
      * @param coor {String} The x and y coordinate pair.
      * @return {int}
      */
-    public int getX(String coor)
+    public static int getX(String coor)
     {
         return Integer.parseInt(coor.split(",")[0]);
     }
@@ -176,7 +191,7 @@ public class State
      * @param coor {String} The x and y coordinate pair.
      * @return {int}
      */
-    public int getY(String coor)
+    public static int getY(String coor)
     {
         return Integer.parseInt(coor.split(",")[1].replace(".", ""));
     }
@@ -227,47 +242,49 @@ public class State
      * Returns a new state resulting from the player moving.
      * Returns null if the move cannot be made.
      * 
+     * @param state      {State} The state to move from.
      * @param move      {char}  The move made (left: 'l', right: 'r', up: 'u', down: 'd').
      * @param xOffset   {int}   The horizontal offset (left: -1, right: 1, none: 0).
      * @param yOffset   {int}   The vertical offset (up: 1, down: -1, none: 0).
      * @return          {State}
      */
-    public State movePlayer(char move, int xOffset, int yOffset)
+    public static State movePlayer(State state, char move, int xOffset, int yOffset)
     {
         // Gets the x and y coordinates of the player.
-        int playerX = getX(playerCoor);
-        int playerY = getY(playerCoor);
+        int xPlayer = getX(state.playerCoor);
+        int yPlayer = getY(state.playerCoor);
 
         // Sets the coordinates of the next two tiles.
-        String nextTile1 = strCoor(playerX + xOffset, playerY + yOffset);
-        String nextTile2 = strCoor(playerX + 2 * xOffset, playerY + 2 * yOffset);
+        String nextTile1 = strCoor(xPlayer + xOffset, yPlayer + yOffset);
+        String nextTile2 = strCoor(xPlayer + (2 * xOffset), yPlayer + (2 * yOffset));
 
         // Checks if the next tile contains a wall.
         if (wallCoor.contains(nextTile1))
         {
-            System.out.println("nextTile1 wall");
+            System.out.println("! Wall: nextTile1");
             return null;
         }
 
         // Checks if the next tile contains a box.
-        if (boxCoor.contains(nextTile1))
+        if (state.boxCoor.contains(nextTile1))
         {
+            System.out.println("! Box: nextTile1");
             // Checks if the box is immovable.
-            if (boxCoor.contains(nextTile2) || wallCoor.contains(nextTile2))
+            if (state.boxCoor.contains(nextTile2) || wallCoor.contains(nextTile2))
             {
-                System.out.println("immovable");
+                System.out.println("! Box: immovable");
                 return null;
             }
 
             // Updates the coordinates of the pushed box.
-            boxCoor.remove(nextTile1);
-            boxCoor.add(nextTile2);
-            boxPushedCoor = nextTile2;
+            state.boxCoor.remove(nextTile1);
+            state.boxCoor.add(nextTile2);
+            state.boxPushedCoor = nextTile2;
 
             // Checks if the move results in a loss.
-            if (!targetCoor.contains(boxPushedCoor) && isStuck())
+            if (!targetCoor.contains(state.boxPushedCoor) && isStuck(state))
             {
-                System.out.println("stuck");
+                System.out.println("! Box: stuck");
                 return null;
             }
         }
@@ -275,36 +292,38 @@ public class State
         // The next tile does not contain a wall nor a box.
         else
         {
-            if (prevState == null) { /* do nothing */ }
+            if (state.prevState == null) { /* do nothing */ }
 
             // Checks if the move is redundant.
-            else if ((move == 'l' && this.prevMove == 'r') ||
-                (move == 'r' && this.prevMove == 'l') ||
-                (move == 'u' && this.prevMove == 'd') ||
-                (move == 'd' && this.prevMove == 'u'))
+            else if ((move == 'l' && state.prevMove == 'r') ||
+                (move == 'r' && state.prevMove == 'l') ||
+                (move == 'u' && state.prevMove == 'd') ||
+                (move == 'd' && state.prevMove == 'u'))
                 {
-                    System.out.println("redundant");
+                    System.out.println("! Space: redundant");
                     return null;
                 }
         }
 
         // Updates the player's location.
-        playerCoor = nextTile1;
+        state.playerCoor = nextTile1;
 
         // Returns the new state otherwise.
-        return new State(playerCoor, boxCoor, this, move);
+        System.out.println("! Returned new state");
+        return new State(state.playerCoor, state.boxCoor, state, move);
     }
 
     /**
      * Checks if the recently pushed box can no longer be moved.
      * 
+     * @param state {State} The state to check.
      * @return {boolean}
      */
-    private boolean isStuck()
+    private static boolean isStuck(State state)
     {
         // Gets the x and y coordinates of the pushed box.
-        int x = getX(boxPushedCoor);
-        int y = getY(boxPushedCoor);
+        int x = getX(state.boxPushedCoor);
+        int y = getY(state.boxPushedCoor);
 
         // Offsets of the coordinates above, beside, and below the pushed box.
         int[][] offsets = {
@@ -322,14 +341,14 @@ public class State
 
             // Checks the contents of the current coordinate.
             boolean isCurrWall  = conCoor(wallCoor, x + offsets[i][0], y + offsets[i][1]);
-            boolean isCurrBox   = conCoor(boxCoor, x + offsets[i][0], y + offsets[i][1]);
+            boolean isCurrBox   = conCoor(state.boxCoor, x + offsets[i][0], y + offsets[i][1]);
 
             // Checks the contents of the next offset coordinate.
             boolean isNextWall  = conCoor(wallCoor, x + offsets[j][0], y + offsets[j][1]);
-            boolean isNextBox   = conCoor(boxCoor, x + offsets[j][0], y + offsets[j][1]);
+            boolean isNextBox   = conCoor(state.boxCoor, x + offsets[j][0], y + offsets[j][1]);
 
             // Checks if there is a wall/box in between the current and next offset coordinates.
-            boolean isCornerObs =   conCoor(boxCoor, x + offsets[i][0] + offsets[j][0],
+            boolean isCornerObs =   conCoor(state.boxCoor, x + offsets[i][0] + offsets[j][0],
                                                     y + offsets[i][1] + offsets[j][1]) ||
                                     conCoor(wallCoor, x + offsets[i][0] + offsets[j][0],
                                                     y + offsets[i][1] + offsets[j][1]);
@@ -337,14 +356,14 @@ public class State
             if ((isCurrWall && (isNextWall || (isNextBox && isCornerObs))) ||
                 (isCurrBox && isCornerObs && (isNextWall || isNextBox)))
                 {
-                    // System.out.println("is stuck");
-                    // System.out.print(" i="+i);
-                    // System.out.print(" j="+j);
-                    // System.out.print(" isCurrWall="+isCurrWall);
-                    // System.out.print(" isCurrBox="+isCurrBox);
-                    // System.out.print(" isNextWall="+isNextWall);
-                    // System.out.print(" isNextBox="+isNextBox);
-                    // System.out.println(" isCornerObs="+isCornerObs);
+                    System.out.print("! Box: stuck");
+                    System.out.print(" i="+i);
+                    System.out.print(" j="+j);
+                    System.out.print(" isCurrWall="+isCurrWall);
+                    System.out.print(" isCurrBox="+isCurrBox);
+                    System.out.print(" isNextWall="+isNextWall);
+                    System.out.print(" isNextBox="+isNextBox);
+                    System.out.println(" isCornerObs="+isCornerObs);
                     return true;
                 }
         }
