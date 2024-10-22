@@ -19,6 +19,7 @@ public class State
 
     public final State prevState;  // The previous state before executing a move.
     public final char prevMove;    // The previous move that leads to the current state.
+    public final Heuristic heuristic; // The heuristic value of the state.
 
     public String boxPushedCoor;   // The coordinates of the pushed box.
 
@@ -40,6 +41,8 @@ public class State
         this.boxPushedCoor = ""; // !REDUNDANT
 
         this.isVisited = false;
+
+        this.heuristic = new Heuristic(this);
     }
 
     /**
@@ -66,6 +69,8 @@ public class State
         this.boxPushedCoor = "";
 
         this.isVisited = false;
+        
+        this.heuristic = new Heuristic(this);
     }
 
     /**
@@ -81,6 +86,7 @@ public class State
         this.prevMove = other.prevMove;
         this.boxPushedCoor = other.boxPushedCoor;
         this.isVisited = other.isVisited;
+        this.heuristic = other.heuristic;
     }
 
     /**

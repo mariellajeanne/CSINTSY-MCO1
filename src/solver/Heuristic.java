@@ -34,18 +34,18 @@ public class Heuristic
 		// subsequent calls
 		else
 		{
-			State prevState = currState.prevState;
+			State prevState = state.prevState;
 
-			copyPrevCoors(currState.prevState);
+			copyPrevCoors(state.prevState);
 
 			this.playerDistance = prevState.heuristic.playerDistance;
 			this.totalBoxDistance = prevState.heuristic.totalBoxDistance;
 			this.heuristicVal = prevState.heuristic.heuristicVal;
 			
-			if (currState.getx(currState.boxPushed) == -1)
-				updatePlayerDistance(currState.playerCoor, unoccupiedTargets);
+			if (state.boxPushedCoor.equals(""))
+				updatePlayerDistance(state);
 			else
-				updateBoxDistances(currState);
+				updateBoxDistances(state);
 		}
 	}
 	
@@ -57,7 +57,7 @@ public class Heuristic
 	private void updateBoxDistances(State state)
 	{
 		 String playerCoor = state.playerCoor;
-		 String boxPushed = state.boxPushed;
+		 String boxPushed = state.boxPushedCoor;
 
 		// playerCoor is the previous coordinate of the box pushed
 		// update coordinates
@@ -77,8 +77,8 @@ public class Heuristic
 		// find nearest unoccupied target
 		for (String target : unoccupiedTargets)
 		{
-			distance = Math.abs(state.getx(target) - state.getx(boxPushed)) + 
-					   Math.abs(state.gety(target) - state.gety(boxPushed));
+			distance = Math.abs(State.getX(target) - State.getX(boxPushed)) + 
+					   Math.abs(State.getY(target) - State.getY(boxPushed));
 			
 			if (distance < minDistance ||
 						   minDistance == -1)
@@ -89,7 +89,7 @@ public class Heuristic
 		this.totalBoxDistance += minDistance;
 
 		boxDistances.remove(playerCoor);
-		boxDistances.add(Integer.valueOf(minDistance));
+		boxDistances.put(boxPushed, Integer.valueOf(minDistance));
 	}
 	
 	/**
@@ -105,8 +105,8 @@ public class Heuristic
 		// finds the nearest box
 		for (String box : nonTargetBoxes)
 		{
-			distance = Math.abs(state.getx(box) - state.getx(state.getPlayerCoor())) + 
-					   Math.abs(state.gety(box) - state.gety(state.getPlayerCoor()));
+			distance = Math.abs(State.getX(box) - State.getX(state.playerCoor)) + 
+					   Math.abs(State.getY(box) - State.getY(state.playerCoor));
 			
 			if (distance < minDistance ||
 						   minDistance == -1)
@@ -132,12 +132,12 @@ public class Heuristic
 
 		// unoccupied targets
 		for (String target : State.targetCoor)
-			if (!boxCoor.contains(target))
+			if (!state.boxCoor.contains(target))
 				unoccupiedTargets.add(target);
 		
 		// non target boxes
 		for (String box : state.boxCoor)
-			if (!targetCoor.contains(box))
+			if (!state.targetCoor.contains(box))
 				nonTargetBoxes.add(box);
 	}
 
@@ -168,16 +168,16 @@ public class Heuristic
 	{
 		this.totalBoxDistance = 0;
 		
-		for (int[] box : nonTargetBoxes)
+		for (String box : nonTargetBoxes)
 		{
 			int minDistance = -1;
 			int distance;
 			
 			// finds the nearest target
-			for (int[] target : unoccupiedTargets)
+			for (String target : unoccupiedTargets)
 			{
-				distance = Math.abs(box[0] - target[0]) +
-						   Math.abs(box[1] - target[1]);
+				distance = Math.abs(State.getX(box) - State.getX(target)) +
+						   Math.abs(State.getY(box) - State.getY(target));
 				
 				if (distance < minDistance ||
 							   minDistance == -1)
@@ -196,13 +196,13 @@ public class Heuristic
 	private void setPlayerDistance(State state)
 	{
 		// sets the player's distance to the nearest non-target box
-		for (int[] box : nonTargetBoxes)
+		for (String box : nonTargetBoxes)
 		{
 			int minDistance = -1;
 			int distance;
 
-			distance = Math.abs(state.getx(box) - state.getx(state.playerCoor)) + 
-					Math.abs(state.gety(box) - state.gety(state.playerCoor));
+			distance = Math.abs(State.getX(box) - State.getX(state.playerCoor)) + 
+					Math.abs(State.getY(box) - State.getY(state.playerCoor));
 			
 			if (distance < minDistance ||
 						minDistance == -1)

@@ -21,7 +21,7 @@ public class Search
     private Queue<State> queue = new ArrayDeque<>();
 
     // TODO: Create comparator for heuristic values
-    private PriorityQueue<State> pQueue = new PriorityQueue<>();
+    private PriorityQueue<State> pQueue = new PriorityQueue<State>((s1, s2) -> s1.heuristic.heuristicVal - s2.heuristic.heuristicVal);
 
     private final char[] moves = {'l', 'r', 'u', 'd'};
     private final int[] offsetx = {-1, 1, 0, 0};
