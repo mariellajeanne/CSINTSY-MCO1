@@ -87,7 +87,8 @@ public class State
         this.prevMove = other.prevMove;
 
         if (other.prevState != null)
-            this.prevState = new State(other.prevState);
+            this.prevState = 
+            (other.prevState);
         else
             this.prevState = null;
 
