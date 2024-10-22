@@ -290,32 +290,43 @@ public class State
      */
     private boolean isStuck()
     {
-        // Check if there's a wall beside the box. Get the coordinates of that wall
-        
-        // Check the coordinates diagonal to the wall.
+        // Gets the x and y coordinates of the pushed box.
+        int x = getX(boxPushedCoor);
+        int y = getY(boxPushedCoor);
 
-            // If there's a wall, is stuck.
-            
-            // If there's a box,
+        // Offsets of the coordinates above, beside, and below the pushed box.
+        int[][] offsets = {
+            {0, 1},
+            {1, 0},
+            {0, -1},
+            {-1, 0}
+        };
 
+        // Loops through each offset coordinate.
+        for (int i = 0; i < 4; i++)
+        {
+            // Gets the index of the next offset.
+            int j = (i + 1) % 4;
 
+            // Checks the contents of the current coordinate.
+            boolean isCurrWall  = conCoor(wallCoor, x + offsets[i][0], y + offsets[i][1]);
+            boolean isCurrBox   = conCoor(boxCoor, x + offsets[i][0], y + offsets[i][1]);
 
-        return
+            // Checks the contents of the next offset coordinate.
+            boolean isNextWall  = conCoor(wallCoor, x + offsets[j][0], y + offsets[j][1]);
+            boolean isNextBox   = conCoor(boxCoor, x + offsets[j][0], y + offsets[j][1]);
 
-            // Checks if there's a wall above or below the pushed box.
-            (conCoor(wallCoor, getX(boxPushedCoor), getY(boxPushedCoor) + 1) ||
-            conCoor(wallCoor, getX(boxPushedCoor), getY(boxPushedCoor) - 1) ||
+            // Checks if there is a wall/box in between the current and next offset coordinates.
+            boolean isCornerObs =   conCoor(boxCoor, x + offsets[i][0] + offsets[j][0],
+                                                    y + offsets[i][1] + offsets[j][1]) ||
+                                    conCoor(wallCoor, x + offsets[i][0] + offsets[j][0],
+                                                    y + offsets[i][1] + offsets[j][1]);
 
-            // Checks if there's a box above or below the pushed box.
-            conCoor(boxCoor, getX(boxPushedCoor), getY(boxPushedCoor) + 1) ||
-            conCoor(boxCoor, getX(boxPushedCoor), getY(boxPushedCoor) - 1)) &&
+            if ((isCurrWall && (isNextWall || (isNextBox && isCornerObs))) ||
+                (isCurrBox && isCornerObs && (isNextWall || isNextBox)))
+                return true;
+        }
 
-            // Checks if there's a wall to the left or right of the pushed box.
-            (conCoor(wallCoor, getX(boxPushedCoor) + 1, getY(boxPushedCoor)) ||
-            conCoor(wallCoor, getX(boxPushedCoor) - 1, getY(boxPushedCoor)) ||
-
-            // Checks if there's a box to the left or right of the pushed box
-            conCoor(boxCoor, getX(boxPushedCoor) + 1, getY(boxPushedCoor)) ||
-            conCoor(boxCoor, getX(boxPushedCoor) - 1, getY(boxPushedCoor) - 1));
+        return false;
     }
 }
