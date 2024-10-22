@@ -290,64 +290,37 @@ public class State
         return false;
     }
 
-    //brute force :( couldnt cook up a better solution
     private boolean isClumpedUp()
     {
         int x = boxPushed[0];
         int y = boxPushed[1];
 
-        if (containsCoor(boxCoor, x, y) &&
-            containsCoor(boxCoor, x + 1, y) &&
-            containsCoor(boxCoor, x, y + 1) &&
-            containsCoor(boxCoor, x + 1, y + 1)) 
+        int[][][] squares = {{{1, 0}, {1, 1}, {0, 1}},
+                                {{-1, 0}, {-1, 1}, {0, 1}},
+                                {{0, -1}, {1, -1}, {1, 0}},
+                                {{0, -1}, {-1, -1}, {-1, 0}}};
+        for (int[][] square: squares)
         {
-            if (!containsCoor(targetCoor, x, y) ||
-                !containsCoor(targetCoor, x + 1, y) ||
-                !containsCoor(targetCoor, x, y + 1) ||
-                !containsCoor(targetCoor, x + 1, y + 1)) 
+            int x1 = square[0][0];
+            int y1 = square[0][1];
+            int x2 = square[1][0];
+            int y2 = square[1][1];
+            int x3 = square[2][0];
+            int y3 = square[2][1];
+            
+            //check if the 4 boxes are clumped up
+            if (containsCoor(boxCoor, x + x1, y + y1) &&
+                containsCoor(boxCoor, x + x2, y + y2) &&
+                containsCoor(boxCoor, x + x3, y + y3)) 
             {
-                return true; 
-            }
-        }
-
-        if (containsCoor(boxCoor, x - 1, y) &&
-            containsCoor(boxCoor, x, y) &&
-            containsCoor(boxCoor, x - 1, y + 1) &&
-            containsCoor(boxCoor, x, y + 1)) 
-        {
-            if (!containsCoor(targetCoor, x - 1, y) ||
-                !containsCoor(targetCoor, x, y) ||
-                !containsCoor(targetCoor, x - 1, y + 1) ||
-                !containsCoor(targetCoor, x, y + 1)) 
-            {
-                return true; 
-            }
-        }
-
-        if (containsCoor(boxCoor, x, y - 1) &&
-            containsCoor(boxCoor, x + 1, y - 1) &&
-            containsCoor(boxCoor, x, y) &&
-            containsCoor(boxCoor, x + 1, y)) 
-        {
-            if (!containsCoor(targetCoor, x, y - 1) ||
-                !containsCoor(targetCoor, x + 1, y - 1) ||
-                !containsCoor(targetCoor, x, y) ||
-                !containsCoor(targetCoor, x + 1, y)) 
-            {
-                return true; 
-            }
-        }
-        if (containsCoor(boxCoor, x - 1, y - 1) &&
-            containsCoor(boxCoor, x, y - 1) &&
-            containsCoor(boxCoor, x - 1, y) &&
-            containsCoor(boxCoor, x, y)) 
-        {
-            if (!containsCoor(targetCoor, x - 1, y - 1) ||
-                !containsCoor(targetCoor, x, y - 1) ||
-                !containsCoor(targetCoor, x - 1, y) ||
-                !containsCoor(targetCoor, x, y)) 
-            {
-                return true; 
+                //checks if at least one of the clumped up boxes is not on a target
+                if (!containsCoor(targetCoor, x, y) ||
+                    !containsCoor(targetCoor, x + x1, y + y1) ||
+                    !containsCoor(targetCoor, x + x2, y + y2) ||
+                    !containsCoor(targetCoor, x + x3, y + y3)) 
+                {
+                    return true; 
+                }
             }
         }
 
