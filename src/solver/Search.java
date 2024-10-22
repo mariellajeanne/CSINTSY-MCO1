@@ -64,14 +64,14 @@ public class Search
 
             // go through each of the next states (left, right, up, down):
             for (int i = 0; i < 4; i++) {
-                State nextState = currState.movePlayer(moves[i], offsetx[i], offsety[i]);
+                State nextState = State.movePlayer(new State(currState), moves[i], offsetx[i], offsety[i]);
                 if (nextState == null)
                 {
                     continue;
                 }
                 if (nextState.boxCoor.equals(State.targetCoor))
                 {
-                    return reversePath(nextState);
+                    return reversePath(nextState) + moves[i];
                 }
                 if (!isVisited(nextState))
                 {
