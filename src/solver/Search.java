@@ -110,7 +110,7 @@ public class Search
     private void addToVisitedStates(State state)
     {
         Object[] stateArr = {state.playerCoor, state.boxCoor};
-        visitedStates.add(new C<Object[]>(stateArr));
+        visitedStates.add(new C<>(stateArr));
     }
 
     /**
@@ -122,6 +122,6 @@ public class Search
     private boolean isVisited(State state)
     {
         Object[] stateArr = {state.playerCoor, state.boxCoor};
-        return visitedStates.contains(new C<Object[]>(stateArr));
+        return visitedStates.contains(new C<>(stateArr));
     }
 }
