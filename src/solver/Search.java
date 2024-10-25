@@ -15,12 +15,6 @@ public class Search
     // The single instance of the search class.
     private static Search search;
 
-    // The set of the visited states' hash codes.
-    private final HashSet<String> visitedStates = new HashSet<>();
-
-    // The queue of states to be visited.
-    private final Queue<State> queue = new ArrayDeque<>();
-
     // The player's moves and their corresponding offsets.
     private final char[] moves = {'l', 'r', 'u', 'd'};
     private final int[] xOffset = {-1, 1, 0, 0};
@@ -48,6 +42,12 @@ public class Search
     */
     public String getSequenceBFS(State startingState)
     {
+        // The queue of states to be visited.
+        Queue<State> queue = new ArrayDeque<>();
+
+        // The set of the visited states' hash codes.
+        Set<String> visitedStates = new HashSet<>();
+        
         queue.add(startingState);
         visitedStates.add(startingState.getHashCode());
 
@@ -67,24 +67,16 @@ public class Search
                     continue;
                 }
                 
-                // Skips the iteration if the next state is null.
-                if (nextState == null)
+                // Skips the iteration if the next state is null or if it is already visited.
+                if (nextState == null || visitedStates.contains(nextState.getHashCode()))
                     continue;
                 
                 // Returns the path to the next state if it is a goal state.
                 if (nextState.boxCoor.equals(State.targetCoor))
                     return reversePath(nextState);
                 
-                // Adds the next state to the queue if it has not yet been visited.
-                if (!visitedStates.contains(nextState.getHashCode()))
-                {
-                    queue.add(nextState);
-                    visitedStates.add((nextState.getHashCode()));
-                }
-
-                // Returns the path to the last state if the queue is empty.
-                if (queue.isEmpty())
-                    return reversePath(nextState);
+                queue.add(nextState);
+                visitedStates.add((nextState.getHashCode()));
             }
         }
         
