@@ -1,5 +1,7 @@
 /**
  * @author Mariella Jeanne A. Dellosa
+ * @author Ronnie M. Abiog Jr.
+ * @author Anthony Andrei C. Tan
  * 
  * Creates and manipulates states.
  */
@@ -9,27 +11,27 @@ import java.util.*;
 
 /**
  * The state class.
- */
+*/
 public class State
 {
-    public String playerCoor;                 // The player coordinates.
-    public HashSet<String> boxCoor;           // The boxes' coordinates.
-    public static HashSet<String> targetCoor; // The targets' coordinates.
+    public final State prevState;  // The previous state.
+    public final char prevMove;    // The previous move that led to the current state.
+
     public static HashSet<String> wallCoor;   // The walls' coordinates.
+    public static HashSet<String> targetCoor; // The targets' coordinates.
 
-    public final State prevState;  // The previous state before executing a move.
-    public final char prevMove;    // The previous move that leads to the current state.
-
-    public String boxPushedCoor;   // The coordinates of the pushed box.
+    public String playerCoor;       // The player's coordinates.
+    public HashSet<String> boxCoor; // The boxes' coordinates.
+    public String boxPushedCoor;    // The recently pushed box's coordinates.
 
     public boolean isVisited; // Determines if the state has already been visited.
 
     /**
      * Constructs the initial state.
-     * 
-     * @param map   {char[][]}  The map.
-     * @param items {char[][]}  The items.
-     */
+    * 
+    * @param map    {char[][]}  The map.
+    * @param items  {char[][]}  The items.
+    */
     public State(char[][] map, char[][] items)
     {
         setCoordinates(map, items);
@@ -37,68 +39,68 @@ public class State
         this.prevState = null;
         this.prevMove = ' ';
 
-        this.boxPushedCoor = ""; // !REDUNDANT
-
         this.isVisited = false;
     }
 
     /**
      * Constructs the next states.
-     * 
-     * @param map           {char[][]}          The map.
-     * @param items         {char[][]}          The items.
-     * 
-     * @param playerCoor    {String}                The player coordinates.
-     * @param boxCoor       {HashSet<C<String>>}    The boxes' coordinates.
-     * @param targetCoor    {HashSet<C<String>>}    The targets' coordinates.
-     * 
-     * @param prevState     {State}             The previous state before executing a move.
-     * @param prevMove      {char}              The previous move that leads to the current state.
-     */
+    * 
+    * @param playerCoor    {String}            The player's coordinates.
+    * @param boxCoor       {HashSet<String>}   The boxes' coordinates.
+    * @param prevState     {State}             The previous state.
+    * @param prevMove      {char}              The previous move that led to the current state.
+    */
     public State(String playerCoor, HashSet<String> boxCoor, State prevState, char prevMove)
     {
         this.playerCoor = playerCoor;
         this.boxCoor = boxCoor;
-        
-        this.prevState = prevState;
-        this.prevMove = prevMove;
-
-        this.boxPushedCoor = "";
+        this.boxPushedCoor = " ";
 
         this.isVisited = false;
+
+        this.prevMove = prevMove;
+
+        if (prevState != null)
+            this.prevState = prevState;
+        else
+            this.prevState = null;
     }
 
     /**
      * Creates a deep copy of a state.
-     * 
-     * @param other {State} The state to copy.
-     */
-    public State(State other)
+    * 
+    * @param state {State} The state to copy.
+    */
+    public State(State state)
     {
-        this.playerCoor = other.playerCoor;
-        this.boxCoor = other.boxCoor;
-        this.prevState = other.prevState;
-        this.prevMove = other.prevMove;
-        this.boxPushedCoor = other.boxPushedCoor;
-        this.isVisited = other.isVisited;
+        this.playerCoor = state.playerCoor;
+        this.boxCoor = new HashSet<>(state.boxCoor);
+        this.boxPushedCoor = " ";
+
+        this.isVisited = state.isVisited;
+
+        this.prevMove = state.prevMove;
+
+        if (state.prevState != null)
+            this.prevState = state.prevState;
+        else
+            this.prevState = null;
     }
 
     /**
      * Sets the coordinates of each tile.
-     * 
-     * @param map   {char[][]}  The map.
-     * @param items {char[][]}  The items.
-     */
+    * 
+    * @param map    {char[][]}  The map.
+    * @param items  {char[][]}  The items.
+    */
     private void setCoordinates(char[][] map, char[][] items)
     {
         // Initialization of coordinate variables.
-        playerCoor = "";
+        playerCoor = " ";
         boxCoor = new HashSet<>();
         targetCoor = new HashSet<>();
         wallCoor = new HashSet<>();
-
-        // Sets the initial coordinates of the pushed box.
-        boxPushedCoor = "";
+        boxPushedCoor = " ";
 
         // Sets the coordinates of the map and items.
 
@@ -127,36 +129,25 @@ public class State
 
     /**
      * Adds a coordinate to a set.
-     * 
-     * @param set {HashSet<String>} The coordinate set.
-     * @param x {int} The x coordinate.
-     * @param y {int} The y coordinate.
-     */
+    * 
+    * @param set {HashSet<String>} The coordinate set.
+    * @param x {int} The x coordinate.
+    * @param y {int} The y coordinate.
+    */
     public void addCoor(HashSet<String> set, int x, int y)
     {
         set.add(x + "," + y + ".");
     }
 
     /**
-     * Removes a coordinate from a set.
-     * 
-     * @param set {HashSet<String>} The coordinate set.
-     * @param x {int} The x coordinate.
-     * @param y {int} The y coordinate.
-     */
-    public void remCoor(HashSet<String> set, int x, int y)
-    {
-        set.remove(x + "," + y + ".");
-    }
-
-    /**
      * Checks if a set contains an x and y coordinate pair.
-     * 
-     * @param set {HashSet<String>} The coordinate set.
-     * @param x {int} The x coordinate.
-     * @param y {int} The y coordinate.
-     * @return {boolean}
-     */
+    * 
+    * @param set {HashSet<String>} The coordinate set.
+    * @param x {int} The x coordinate.
+    * @param y {int} The y coordinate.
+    * 
+    * @return {boolean}
+    */
     public static boolean conCoor(HashSet<String> set, int x, int y)
     {
         return set.contains(x + "," + y + ".");
@@ -164,11 +155,12 @@ public class State
 
     /**
      * Returns a string of an x and y coordinate pair.
-     * 
-     * @param x {int} The x coordinate.
-     * @param y {int} The y coordinate.
-     * @return {String}
-     */
+    * 
+    * @param x {int} The x coordinate.
+    * @param y {int} The y coordinate.
+    * 
+    * @return {String}
+    */
     public static String strCoor(int x, int y)
     {
         return (x + "," + y + ".");
@@ -176,10 +168,11 @@ public class State
 
     /**
      * Returns the x coordinate of an x and y coordinate pair.
-     * 
-     * @param coor {String} The x and y coordinate pair.
-     * @return {int}
-     */
+    * 
+    * @param coor {String} The x and y coordinate pair.
+    * 
+    * @return {int}
+    */
     public static int getX(String coor)
     {
         return Integer.parseInt(coor.split(",")[0]);
@@ -187,50 +180,37 @@ public class State
 
     /**
      * Returns the y coordinate of an x and y coordinate pair.
-     * 
-     * @param coor {String} The x and y coordinate pair.
-     * @return {int}
-     */
+    * 
+    * @param coor {String} The x and y coordinate pair.
+    * 
+    * @return {int}
+    */
     public static int getY(String coor)
     {
-        return Integer.parseInt(coor.split(",")[1].replace(".", ""));
-    }
-
-    /**
-     * Marks the state as visited.
-     */
-    public void visit()
-    {
-        this.isVisited = true;
-    }
-
-    /**
-     * Determines if the state is visited.
-     * 
-     * @return {boolean}
-     */
-    public boolean isVisited()
-    {
-        return this.isVisited;
+        return Integer.parseInt(coor.split(",")[1].
+                    replace(".", ""));
     }
 
     /**
      * Returns the hash code of the state.
-     * 
-     * @return {String}
-     */
+    * 
+    * @return {String}
+    */
     public String getHashCode()
     {
+        // Creates an ordered list of the box coordinates.
         List<String> boxCoorList = new ArrayList<>(boxCoor);
+
+        // Creates a string builder for the hash code.
         StringBuilder sb = new StringBuilder();
 
         // Sorts the box coordinates.
         Collections.sort(boxCoorList);
 
-        // Concatinates the player's coordinates.
+        // Concatinates the player's coordinates to the string.
         sb.append(playerCoor);
         
-        // Concatinates the boxes' coordinates.
+        // Concatinates the boxes' coordinates to the string.
         for (String coor : boxCoorList)
             sb.append(coor);
 
@@ -240,14 +220,15 @@ public class State
 
     /**
      * Returns a new state resulting from the player moving.
-     * Returns null if the move cannot be made.
-     * 
-     * @param state      {State} The state to move from.
-     * @param move      {char}  The move made (left: 'l', right: 'r', up: 'u', down: 'd').
-     * @param xOffset   {int}   The horizontal offset (left: -1, right: 1, none: 0).
-     * @param yOffset   {int}   The vertical offset (up: 1, down: -1, none: 0).
-     * @return          {State}
-     */
+    * Returns null if the move cannot be made.
+    * 
+    * @param state     {State} The state to move from.
+    * @param move      {char}  The move made (left: 'l', right: 'r', up: 'u', down: 'd').
+    * @param xOffset   {int}   The horizontal offset (left: -1, right: 1, none: 0).
+    * @param yOffset   {int}   The vertical offset (up: 1, down: -1, none: 0).
+    * 
+    * @return          {State}
+    */
     public static State movePlayer(State state, char move, int xOffset, int yOffset)
     {
         // Gets the x and y coordinates of the player.
@@ -260,21 +241,14 @@ public class State
 
         // Checks if the next tile contains a wall.
         if (wallCoor.contains(nextTile1))
-        {
-            System.out.println("! Wall: nextTile1");
             return null;
-        }
 
         // Checks if the next tile contains a box.
         if (state.boxCoor.contains(nextTile1))
         {
-            System.out.println("! Box: nextTile1");
             // Checks if the box is immovable.
             if (state.boxCoor.contains(nextTile2) || wallCoor.contains(nextTile2))
-            {
-                System.out.println("! Box: immovable");
                 return null;
-            }
 
             // Updates the coordinates of the pushed box.
             state.boxCoor.remove(nextTile1);
@@ -283,53 +257,49 @@ public class State
 
             // Checks if the move results in a loss.
             if (!targetCoor.contains(state.boxPushedCoor) && isStuck(state))
-            {
-                System.out.println("! Box: stuck");
                 return null;
-            }
         }
 
         // The next tile does not contain a wall nor a box.
         else
         {
-            if (state.prevState == null) { /* do nothing */ }
+            if (state.prevState == null ||
+                !state.prevState.boxPushedCoor.equals(" "))
+            { /* do nothing */ }
 
             // Checks if the move is redundant.
             else if ((move == 'l' && state.prevMove == 'r') ||
                 (move == 'r' && state.prevMove == 'l') ||
                 (move == 'u' && state.prevMove == 'd') ||
                 (move == 'd' && state.prevMove == 'u'))
-                {
-                    System.out.println("! Space: redundant");
-                    return null;
-                }
+                return null;
         }
 
         // Updates the player's location.
         state.playerCoor = nextTile1;
 
-        // Returns the new state otherwise.
-        System.out.println("! Returned new state");
+        // Returns the new state.
         return new State(state.playerCoor, state.boxCoor, state, move);
     }
 
     /**
      * Checks if the recently pushed box can no longer be moved.
-     * 
-     * @param state {State} The state to check.
-     * @return {boolean}
-     */
+    * 
+    * @param state {State} The state to check.
+    * 
+    * @return {boolean}
+    */
     private static boolean isStuck(State state)
     {
         // Gets the x and y coordinates of the pushed box.
         int x = getX(state.boxPushedCoor);
         int y = getY(state.boxPushedCoor);
 
-        // Offsets of the coordinates above, beside, and below the pushed box.
-        int[][] offsets = {
-            {0, 1},
-            {1, 0},
+        // Offsets of the pushed box's coordinates.
+        int[][] offset = {
             {0, -1},
+            {1, 0},
+            {0, 1},
             {-1, 0}
         };
 
@@ -339,33 +309,24 @@ public class State
             // Gets the index of the next offset.
             int j = (i + 1) % 4;
 
-            // Checks the contents of the current coordinate.
-            boolean isCurrWall  = conCoor(wallCoor, x + offsets[i][0], y + offsets[i][1]);
-            boolean isCurrBox   = conCoor(state.boxCoor, x + offsets[i][0], y + offsets[i][1]);
+            // Checks the contents of the current offset coordinate.
+            boolean isCurrWall  = conCoor(wallCoor, x + offset[i][0], y + offset[i][1]);
+            boolean isCurrBox   = conCoor(state.boxCoor, x + offset[i][0], y + offset[i][1]);
 
             // Checks the contents of the next offset coordinate.
-            boolean isNextWall  = conCoor(wallCoor, x + offsets[j][0], y + offsets[j][1]);
-            boolean isNextBox   = conCoor(state.boxCoor, x + offsets[j][0], y + offsets[j][1]);
+            boolean isNextWall  = conCoor(wallCoor, x + offset[j][0], y + offset[j][1]);
+            boolean isNextBox   = conCoor(state.boxCoor, x + offset[j][0], y + offset[j][1]);
 
             // Checks if there is a wall/box in between the current and next offset coordinates.
-            boolean isCornerObs =   conCoor(state.boxCoor, x + offsets[i][0] + offsets[j][0],
-                                                    y + offsets[i][1] + offsets[j][1]) ||
-                                    conCoor(wallCoor, x + offsets[i][0] + offsets[j][0],
-                                                    y + offsets[i][1] + offsets[j][1]);
+            boolean isCornerObs =   conCoor(state.boxCoor, x + offset[i][0] + offset[j][0],
+                                                    y + offset[i][1] + offset[j][1]) ||
+                                    conCoor(wallCoor, x + offset[i][0] + offset[j][0],
+                                                    y + offset[i][1] + offset[j][1]);
 
+            // Checks if the box is stuck in a corner of immovable obstacles.
             if ((isCurrWall && (isNextWall || (isNextBox && isCornerObs))) ||
                 (isCurrBox && isCornerObs && (isNextWall || isNextBox)))
-                {
-                    System.out.print("! Box: stuck");
-                    System.out.print(" i="+i);
-                    System.out.print(" j="+j);
-                    System.out.print(" isCurrWall="+isCurrWall);
-                    System.out.print(" isCurrBox="+isCurrBox);
-                    System.out.print(" isNextWall="+isNextWall);
-                    System.out.print(" isNextBox="+isNextBox);
-                    System.out.println(" isCornerObs="+isCornerObs);
-                    return true;
-                }
+                return true;
         }
 
         return false;

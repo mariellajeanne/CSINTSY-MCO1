@@ -9,29 +9,28 @@ import java.util.*;
 
 /**
  * The search class.
- */
+*/
 public class Search
 {
     // The single instance of the search class.
     private static Search search;
 
-    // The set of visited playerCoor and boxCoor states.
-    private HashSet<String> visitedStates = new HashSet<>();
+    // The set of the visited states' hash codes.
+    private final HashSet<String> visitedStates = new HashSet<>();
 
-    private Queue<State> queue = new ArrayDeque<>();
+    // The queue of states to be visited.
+    private final Queue<State> queue = new ArrayDeque<>();
 
-    // TODO: Create comparator for heuristic values
-    private PriorityQueue<State> pQueue = new PriorityQueue<>();
-
+    // The player's moves and their corresponding offsets.
     private final char[] moves = {'l', 'r', 'u', 'd'};
-    private final int[] offsetx = {-1, 1, 0, 0};
-    private final int[] offsety = {0, 0, -1, 1};
+    private final int[] xOffset = {-1, 1, 0, 0};
+    private final int[] yOffset = {0, 0, -1, 1};
 
     /**
      * Returns the single instance of the class.
-     * 
-     * @return {Search}
-     */
+    * 
+    * @return {Search}
+    */
     public static Search getInstance()
     {
         if (search == null)
@@ -41,142 +40,80 @@ public class Search
 
     /**
      * Returns the sequence of the goal state's moves using Breadth-First Search.
-     * Returns "" otherwise.
-     * 
-     * @param startingState {State} the starting state
-     * 
-     * @return {String}
-     */
+    * Returns "" otherwise.
+    * 
+    * @param startingState {State} The starting state.
+    * 
+    * @return {String}
+    */
     public String getSequenceBFS(State startingState)
     {
         queue.add(startingState);
-        // startingState.visit();
         visitedStates.add(startingState.getHashCode());
-        // System.out.println("added starting state");
-
-        ArrayList<String> wallCoorList = new ArrayList<>(State.wallCoor);
-        Collections.sort(wallCoorList);
-        System.out.println("Wall Coors: " + wallCoorList);
-        System.out.println("Target Coors: " + State.targetCoor);
 
         while (!queue.isEmpty())
         {
+            // Dequeues the head of the queue.
             State currState = queue.poll();
-            System.out.println("\n===========");
-            // System.out.println("dequeue");
-            System.out.println("queue size: " + queue.size());
-            System.out.println("\nBox Coors: " + currState.boxCoor);
-            System.out.println("Player Coor: " + currState.playerCoor);
 
-            if (currState.boxCoor.equals(State.targetCoor))
-            {
-                System.out.println("target reached");
-                return reversePath(currState);
-            }
-
-
-            // go through each of the next states (left, right, up, down):
+            // Checks each move from the current state (i.e., left, right, up, and down).
             for (int i = 0; i < 4; i++) {
-                
-                System.out.println("");
-                System.out.println("+ move: " + moves[i]);    
-                State nextState = State.movePlayer(new State(currState), moves[i], offsetx[i], offsety[i]);
-                
-                
-                if (nextState == null)
-                {
-                    System.out.println("nextState: null");
+
+                // Gets the next state transitioned from the move.
+                State nextState;
+                try {
+                    nextState = State.movePlayer(new State(currState), moves[i], xOffset[i], yOffset[i]);
+                } catch (Exception e) {
                     continue;
                 }
-                System.out.println("@ Box Coors: " + nextState.boxCoor);
-                System.out.println("@ Player Coor: " + nextState.playerCoor);
                 
-                System.out.println("prev moves: " + reversePath(nextState));
+                // Skips the iteration if the next state is null.
+                if (nextState == null)
+                    continue;
                 
+                // Returns the path to the next state if it is a goal state.
                 if (nextState.boxCoor.equals(State.targetCoor))
-                {
-                    System.out.println("nextState: target");
                     return reversePath(nextState);
-                }
                 
+                // Adds the next state to the queue if it has not yet been visited.
                 if (!visitedStates.contains(nextState.getHashCode()))
                 {
                     queue.add(nextState);
                     visitedStates.add((nextState.getHashCode()));
-                    System.out.println("nextState: added to queue & visited");
                 }
-                
-                System.out.print("> queue size: " + queue.size() + " | ");
-                System.out.println("visited states size: " + visitedStates.size());
-            }
-        }
 
-        System.out.println("\nreturn empty string");
-        return "";
-    }
-
-    /**
-     * Returns the sequence of the goal state's moves using Greedy Best-First Search.
-     * Returns "" otherwise.
-     * 
-     * @param startingState {State} the starting state
-     * 
-     * @return {String}
-     */
-    public String getSequenceGBFS(State startingState)
-    {
-        pQueue.add(startingState);
-        visitedStates.add((startingState.getHashCode()));
-
-        while (!pQueue.isEmpty())
-        {
-            State currState = pQueue.poll();
-
-            if (currState.boxCoor.equals(State.targetCoor))
-            {
-                return reversePath(currState);
-            }
-
-
-            // go through each of the next states (left, right, up, down):
-            for (int i = 0; i < 4; i++) {
-                State nextState = State.movePlayer(new State(currState), moves[i], offsetx[i], offsety[i]);
-                if (nextState == null)
-                {
-                    continue;
-                }
-                if (nextState.boxCoor.equals(State.targetCoor))
-                {
+                // Returns the path to the last state if the queue is empty.
+                if (queue.isEmpty())
                     return reversePath(nextState);
-                }
-                if (!visitedStates.contains(nextState.getHashCode()))
-                {
-                    pQueue.add(nextState);
-                    visitedStates.add((nextState.getHashCode()));
-                }
             }
         }
-
+        
         return "";
     }
 
     /**
      * Reconstructs the path taken from the given end state to the starting state.
-     * 
-     * @param endState {State} the end state
-     * @return {String}
-     */
+    * 
+    * @param endState {State} The end state.
+    * 
+    * @return {String}
+    */
     private String reversePath(State endState)
-    {
-        StringBuilder path = new StringBuilder(endState.prevMove);
+    {   
+        // Starts building the path with the last move.
+        StringBuilder path = new StringBuilder().append(endState.prevMove);
 
+        // Gets the previous state of the end state.
         State currState = endState.prevState;
+
+        // Constructs the path in reverse.
         while (currState != null)
         {
             path.append(currState.prevMove);
             currState = currState.prevState;
         }
 
+        // Returns the reversed constructed path.
         return path.reverse().toString();
     }
 }
