@@ -6,6 +6,7 @@
 
 package solver;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * The search class.
@@ -19,6 +20,20 @@ public class Search
     private final char[] moves = {'l', 'r', 'u', 'd'};
     private final int[] xOffset = {-1, 1, 0, 0};
     private final int[] yOffset = {0, 0, -1, 1};
+
+    // The Queue and HashMap for searching.
+    private Queue<State> queue;
+    private ConcurrentHashMap<String, Boolean> visitedStates;
+    private ExecutorService executorService;
+
+    /**
+     * Constructor for the search class.
+     * Initializes the executor service with 4 threads.
+     */
+    private Search()
+    {
+        this.executorService = Executors.newFixedThreadPool(4);
+    }
 
     /**
      * Returns the single instance of the class.
@@ -42,14 +57,12 @@ public class Search
     */
     public String getSequenceBFS(State startingState)
     {
-        // The queue of states to be visited.
-        Queue<State> queue = new ArrayDeque<>();
-
-        // The set of the visited states' hash codes.
-        Set<String> visitedStates = new HashSet<>();
+        // Initialize the queue and visited states.
+        queue = new ConcurrentLinkedQueue<>();
+        visitedStates = new ConcurrentHashMap<>();
         
         queue.add(startingState);
-        visitedStates.add(startingState.getHashCode());
+        visitedStates.put(startingState.getHashCode(), true);
 
         while (!queue.isEmpty())
         {
@@ -57,29 +70,43 @@ public class Search
             State currState = queue.poll();
 
             // Checks each move from the current state (i.e., left, right, up, and down).
-            for (int i = 0; i < 4; i++) {
+            List<Future<State>> futures = new ArrayList<>();
+            for (int i = 0; i < 4; i++)
+            {
+                final int moveIndex = i;
+                Callable<State> task = () -> {
+                    try {
+                        return State.movePlayer(new State(currState), moves[moveIndex], xOffset[moveIndex], yOffset[moveIndex]);
+                    } catch (Exception e) {
+                        return null;
+                    }
+                };
+                futures.add(executorService.submit(task));
+            }
 
-                // Gets the next state transitioned from the move.
-                State nextState;
+            for (Future<State> future : futures)
+            {
                 try {
-                    nextState = State.movePlayer(new State(currState), moves[i], xOffset[i], yOffset[i]);
+                    State nextState = future.get();
+                    if (nextState == null || visitedStates.containsKey(nextState.getHashCode()))
+                        continue;
+
+                    if (nextState.boxCoor.equals(State.targetCoor))
+                    {
+                        executorService.shutdownNow();
+                        return reversePath(nextState);
+                    }
+
+                    queue.add(nextState);
+                    visitedStates.put(nextState.getHashCode(), true);
+
                 } catch (Exception e) {
                     continue;
                 }
-                
-                // Skips the iteration if the next state is null or if it is already visited.
-                if (nextState == null || visitedStates.contains(nextState.getHashCode()))
-                    continue;
-                
-                // Returns the path to the next state if it is a goal state.
-                if (nextState.boxCoor.equals(State.targetCoor))
-                    return reversePath(nextState);
-                
-                queue.add(nextState);
-                visitedStates.add((nextState.getHashCode()));
             }
         }
-        
+
+        executorService.shutdownNow();
         return "";
     }
 
