@@ -217,6 +217,21 @@ public class State
             }
         }
 
+        // The next tile does not contain a wall nor a box.
+        else
+        {
+            if (state.prev.prevDetails == null ||
+                state.prev.boxPushedCoor != null)
+            { /* do nothing */ }
+
+            // Checks if the move is redundant.
+            else if ((move == 'u' && state.prev.move == 'd') ||
+                (move == 'r' && state.prev.move == 'l') ||
+                (move == 'd' && state.prev.move == 'u') ||
+                (move == 'l' && state.prev.move == 'r'))
+                return null;
+        }
+
         // Updates the player's location.
         state.playerCoor = nextTile1;
 
