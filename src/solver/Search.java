@@ -73,15 +73,9 @@ public class Search
                 // Checks the next state if it isn't null.
                 if (nextState != null)
                 {
-                    // Gets the hash code of the state.
-                    String code = nextState.getHashCode();
-
                     // Adds the next state to the queue if it has not yet been visited.
-                    if (!visitedStates.contains(code))
-                    {
+                    if (visitedStates.add(nextState.getHashCode()))
                         queue.add(nextState);
-                        visitedStates.add(code);
-                    }
 
                     // Returns the path to the last state.
                     if (nextState.boxCoor.equals(State.targetCoor) || queue.isEmpty())
@@ -114,6 +108,8 @@ public class Search
             path.append(prevDetails.move);
             prevDetails = prevDetails.prevDetails;
         }
+
+        System.out.println(visitedStates.size());
 
         // Returns the reversed constructed path.
         return path.reverse().toString();

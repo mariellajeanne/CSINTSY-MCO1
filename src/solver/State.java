@@ -225,10 +225,10 @@ public class State
             { /* do nothing */ }
 
             // Checks if the move is redundant.
-            else if ((move == 'l' && state.prev.move == 'r') ||
+            else if ((move == 'u' && state.prev.move == 'd') ||
                 (move == 'r' && state.prev.move == 'l') ||
-                (move == 'u' && state.prev.move == 'd') ||
-                (move == 'd' && state.prev.move == 'u'))
+                (move == 'd' && state.prev.move == 'u') ||
+                (move == 'l' && state.prev.move == 'r'))
                 return null;
         }
 
