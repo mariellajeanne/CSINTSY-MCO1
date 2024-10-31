@@ -16,9 +16,6 @@ public class State
 {
     public Prev prev; // Details of the previous state.
 
-    public static int width;    // The width of the grid.
-    public static int height;   // The height of the grid.
-
     public static HashSet<Coor> wallCoor;   // The walls' coordinates.
     public static HashSet<Coor> targetCoor; // The targets' coordinates.
 
@@ -43,12 +40,9 @@ public class State
      * @param map    {char[][]}  The map.
      * @param items  {char[][]}  The items.
      */
-    public State(char[][] map, char[][] items, int width, int height)
+    public State(char[][] map, char[][] items)
     {
         setCoordinates(map, items);
-        State.width = width;
-        State.height = height;
-
         this.prev = new Prev(' ', null, null);
     }
 

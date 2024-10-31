@@ -35,7 +35,7 @@ public class SokoBot {
      */
     
     // Creates the starting state.
-    State state = new State(mapData, itemsData, width, height);
+    State state = new State(mapData, itemsData);
 
     // Gets the single instance of the search class.
     Search search = Search.getInstance();
