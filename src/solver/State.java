@@ -29,15 +29,23 @@ public class State
     public static final int[] xOffsets = {0, 1, 0, -1}; // The horizontal offsets.
     public static final int[] yOffsets = {-1, 0, 1, 0}; // The vertical offsets.
 
+    public static int width;    // The width of the grid.
+    public static int height;   // The height of the grid.
+
+    public static int xTargetSum; // Sum of the targets' x coordinates.
+    public static int yTargetSum; // Sum of the targets' y coordinates.
+
     /**
      * Constructs the initial state.
      * 
      * @param map    {char[][]}  The map.
      * @param items  {char[][]}  The items.
      */
-    public State(char[][] map, char[][] items)
+    public State(char[][] map, char[][] items, int width, int height)
     {
         setCoordinates(map, items);
+        State.width = width;
+        State.height = height;
 
         this.prev = new Prev(' ', null, null);
         this.isVisited = false;
@@ -90,6 +98,8 @@ public class State
         targetCoor = new HashSet<>();
         wallCoor = new HashSet<>();
         boxPushedCoor = null;
+        xTargetSum = 0;
+        yTargetSum = 0;
 
         // Sets the coordinates of the map and items.
 
@@ -106,7 +116,9 @@ public class State
                 switch (map[y][x])
                 {
                     case '#' -> { wallCoor.add(coor); }
-                    case '.' -> { targetCoor.add(coor); }
+                    case '.' -> { targetCoor.add(coor);
+                                  xTargetSum += x;
+                                  yTargetSum += y;}
                 }
 
                 // Checks the items data.
@@ -157,8 +169,6 @@ public class State
         // Gets the x and y coordinates of the player.
         int xPlayer = state.playerCoor.getX();
         int yPlayer = state.playerCoor.getY();
-
-        
 
         // Sets the coordinates of the next two tiles.
         Coor nextTile1 = new Coor(xPlayer + xOffset, yPlayer + yOffset);
@@ -243,5 +253,24 @@ public class State
             (i == 1 && prev.move == 'l') ||
             (i == 2 && prev.move == 'u') ||
             (i == 3 && prev.move == 'r'));
+    }
+
+    /**
+     * Returns the state's heuristic value.
+     * 
+     * @return {float}
+     */
+    public int heuristic()
+    {
+        int xBoxSum = 0;
+        int yBoxSum = 0;
+
+        for (Coor coor : boxCoor)
+        {
+            xBoxSum += coor.getX();
+            yBoxSum += coor.getY();
+        }
+
+        return Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum);
     }
 }

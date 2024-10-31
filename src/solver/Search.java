@@ -19,7 +19,9 @@ public class Search
     private final HashSet<String> visitedStates = new HashSet<>();
 
     // The queue of states to be visited.
-    private final ArrayDeque<State> queue = new ArrayDeque<>();
+    // private final ArrayDeque<State> queue = new ArrayDeque<>();
+
+    private final PriorityQueue<State> queue = new PriorityQueue<>(Comparator.comparing(State::heuristic));
 
     /**
      * Returns the single instance of the class.
@@ -137,6 +139,8 @@ public class Search
             path.append(prevDetails.move);
             prevDetails = prevDetails.prevDetails;
         }
+
+        System.out.println(visitedStates.size());
 
         // Returns the reversed constructed path.
         return path.reverse().toString();
