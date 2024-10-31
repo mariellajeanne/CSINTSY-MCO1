@@ -140,8 +140,6 @@ public class Search
             prevDetails = prevDetails.prevDetails;
         }
 
-        System.out.println(visitedStates.size());
-
         // Returns the reversed constructed path.
         return path.reverse().toString();
     }

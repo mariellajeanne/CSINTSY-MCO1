@@ -10,8 +10,7 @@ package solver;
 import java.util.*;
 
 /**
-
-* The state class.
+ * The state class.
  */
 public class State
 {
@@ -271,6 +270,7 @@ public class State
             yBoxSum += coor.getY();
         }
 
+        // Returns the sum of the manhattan distances between each box and target.
         return Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum);
     }
 }
