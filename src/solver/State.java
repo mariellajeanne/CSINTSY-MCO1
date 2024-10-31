@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class State
 {
-    public final Prev prev; // Details of the previous state.
+    public Prev prev; // Details of the previous state.
 
     public static HashSet<Coor> wallCoor;   // The walls' coordinates.
     public static HashSet<Coor> targetCoor; // The targets' coordinates.
@@ -25,6 +25,9 @@ public class State
     public Coor boxPushedCoor;    // The recently pushed box's coordinates.
 
     public boolean isVisited; // Determines if the state has already been visited.
+
+    public static final int[] xOffsets = {0, 1, 0, -1}; // The horizontal offsets.
+    public static final int[] yOffsets = {-1, 0, 1, 0}; // The vertical offsets.
 
     /**
      * Constructs the initial state.
@@ -143,21 +146,23 @@ public class State
      * 
      * @param state     {State} The state to move from.
      * @param move      {char}  The move made.
-     * @param xOffset   {int[]} The horizontal offset (left: -1, right: 1, none: 0).
-     * @param yOffset   {int[]} The vertical offset (up: 1, down: -1, none: 0).
+     * @param xOffset   {int}   The x offset.
+     * @param yOffset   {int}   The y offset.
      * @param offsetID  {int}   The offset ID.
      * 
      * @return          {State}
      */
-    public static State movePlayer(State state, char move, int[] xOffset, int[] yOffset, int offsetID)
+    public static State movePlayer(State state, char move, int xOffset, int yOffset, int offsetID)
     {
         // Gets the x and y coordinates of the player.
         int xPlayer = state.playerCoor.getX();
         int yPlayer = state.playerCoor.getY();
 
+        
+
         // Sets the coordinates of the next two tiles.
-        Coor nextTile1 = new Coor(xPlayer + xOffset[offsetID], yPlayer + yOffset[offsetID]);
-        Coor nextTile2 = new Coor(xPlayer + (2 * xOffset[offsetID]), yPlayer + (2 * yOffset[offsetID]));
+        Coor nextTile1 = new Coor(xPlayer + xOffset, yPlayer + yOffset);
+        Coor nextTile2 = new Coor(xPlayer + (2 * xOffset), yPlayer + (2 * yOffset));
 
         // Checks if the next tile contains a wall.
         if (wallCoor.contains(nextTile1))
@@ -178,9 +183,6 @@ public class State
             // Checks if the move results in a loss.
             if (!targetCoor.contains(state.boxPushedCoor))
             {
-                // Sets the offset ID.
-                offsetID = (offsetID + 3) % 4;
-
                 // Gets the x and y coordinates of the pushed box.
                 int x = state.boxPushedCoor.getX();
                 int y = state.boxPushedCoor.getY();
@@ -192,10 +194,10 @@ public class State
                     int j = (i + 1) % 4;
 
                     // Gets the coordinates to be checked.
-                    Coor currCoor = new Coor(x + xOffset[i], y + yOffset[i]);
-                    Coor nextCoor = new Coor(x + xOffset[j], y + yOffset[j]);
-                    Coor cornerCoor = new Coor(x + xOffset[i] + xOffset[j],
-                                    y + yOffset[i] + yOffset[j]);
+                    Coor currCoor = new Coor(x + xOffsets[i], y + yOffsets[i]);
+                    Coor nextCoor = new Coor(x + xOffsets[j], y + yOffsets[j]);
+                    Coor cornerCoor = new Coor(x + xOffsets[i] + xOffsets[j],
+                                    y + yOffsets[i] + yOffsets[j]);
 
                     // Checks the contents of the current offset coordinate.
                     boolean isCurrWall  = wallCoor.contains(currCoor);
@@ -217,27 +219,14 @@ public class State
             }
         }
 
-        // The next tile does not contain a wall nor a box.
-        else
-        {
-            if (state.prev.prevDetails == null ||
-                state.prev.boxPushedCoor != null)
-            { /* do nothing */ }
-
-            // Checks if the move is redundant.
-            else if ((move == 'u' && state.prev.move == 'd') ||
-                (move == 'r' && state.prev.move == 'l') ||
-                (move == 'd' && state.prev.move == 'u') ||
-                (move == 'l' && state.prev.move == 'r'))
-                return null;
-        }
-
         // Updates the player's location.
         state.playerCoor = nextTile1;
 
+        // Sets the details of the previous state.
+        state.prev = new Prev(move, state.boxPushedCoor, state.prev);
+
         // Returns the new state.
-        return new State(state.playerCoor, state.boxCoor,
-                new Prev(move, state.boxPushedCoor, state.prev));
+        return state;
     }
 
     /**

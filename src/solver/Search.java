@@ -21,11 +21,6 @@ public class Search
     // The queue of states to be visited.
     private final ArrayDeque<State> queue = new ArrayDeque<>();
 
-    // The player's moves and their corresponding offsets.
-    public static final char[] moves = {'u', 'r', 'd', 'l'};
-    public static final int[] xOffset = {0, 1, 0, -1};
-    public static final int[] yOffset = {-1, 0, 1, 0};
-
     /**
      * Returns the single instance of the class.
      * 
@@ -67,7 +62,37 @@ public class Search
                 State nextState;
                 try
                 {
-                    nextState = State.movePlayer(new State(currState), moves[i], xOffset, yOffset, i);
+                    // Sets the move.
+                    char move = switch(i)
+                    {
+                        case 0 -> 'u';
+                        case 1 -> 'r';
+                        case 2 -> 'd';
+                        case 3 -> 'l';
+                        default -> 'u';
+                    };
+
+                    // Sets the x offset.
+                    int xOffset = switch(i)
+                    {
+                        case 0 -> 0;
+                        case 1 -> 1;
+                        case 2 -> 0;
+                        case 3 -> -1;
+                        default -> 0;
+                    };
+
+                    // Sets the y offset.
+                    int yOffset = switch(i)
+                    {
+                        case 0 -> -1;
+                        case 1 -> 0;
+                        case 2 -> 1;
+                        case 3 -> 0;
+                        default -> -1;
+                    };
+
+                    nextState = State.movePlayer(new State(currState), move, xOffset, yOffset, (i + 3) % 4);
                 }
                 catch (Exception e)
                 {
@@ -112,8 +137,6 @@ public class Search
             path.append(prevDetails.move);
             prevDetails = prevDetails.prevDetails;
         }
-
-        System.out.println(visitedStates.size());
 
         // Returns the reversed constructed path.
         return path.reverse().toString();
