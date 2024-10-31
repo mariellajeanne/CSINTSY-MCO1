@@ -16,6 +16,9 @@ public class State
 {
     public Prev prev; // Details of the previous state.
 
+    public static int width;    // The width of the grid.
+    public static int height;   // The height of the grid.
+
     public static HashSet<Coor> wallCoor;   // The walls' coordinates.
     public static HashSet<Coor> targetCoor; // The targets' coordinates.
 
@@ -23,16 +26,16 @@ public class State
     public TreeSet<Coor> boxCoor; // The boxes' coordinates.
     public Coor boxPushedCoor;    // The recently pushed box's coordinates.
 
-    public boolean isVisited; // Determines if the state has already been visited.
+    public static int xTargetSum; // Sum of the targets' x coordinates.
+    public static int yTargetSum; // Sum of the targets' y coordinates.
+
+    public int xBoxSum; // Sum of the boxes' x coordinates.
+    public int yBoxSum; // Sum of the boxes' y coordinates.
+
+    public static final char[] moves = {'u', 'r', 'd', 'l'}; // The player's moves.
 
     public static final int[] xOffsets = {0, 1, 0, -1}; // The horizontal offsets.
     public static final int[] yOffsets = {-1, 0, 1, 0}; // The vertical offsets.
-
-    public static int width;    // The width of the grid.
-    public static int height;   // The height of the grid.
-
-    public static int xTargetSum; // Sum of the targets' x coordinates.
-    public static int yTargetSum; // Sum of the targets' y coordinates.
 
     /**
      * Constructs the initial state.
@@ -47,25 +50,6 @@ public class State
         State.height = height;
 
         this.prev = new Prev(' ', null, null);
-        this.isVisited = false;
-    }
-
-    /**
-     * Constructs the next states.
-     * 
-     * @param playerCoor    {String}            The player's coordinates.
-     * @param boxCoor       {TreeSet<Coor>}     The boxes' coordinates.
-     * @param prev          {Prev}              The previous state's details.
-     */
-    public State(Coor playerCoor, TreeSet<Coor> boxCoor, Prev prev)
-    {
-        this.playerCoor = playerCoor;
-        this.boxCoor = boxCoor;
-        this.boxPushedCoor = null;
-
-        this.isVisited = false;
-
-        this.prev = prev;
     }
 
     /**
@@ -78,8 +62,8 @@ public class State
         this.playerCoor = state.playerCoor;
         this.boxCoor = new TreeSet<>(state.boxCoor);
         this.boxPushedCoor = null;
-
-        this.isVisited = false;
+        this.xBoxSum = state.xBoxSum;
+        this.yBoxSum = state.yBoxSum;
 
         this.prev = state.prev;
     }
@@ -99,6 +83,8 @@ public class State
         boxPushedCoor = null;
         xTargetSum = 0;
         yTargetSum = 0;
+        xBoxSum = 0;
+        yBoxSum = 0;
 
         // Sets the coordinates of the map and items.
 
@@ -156,22 +142,19 @@ public class State
      * Returns null if the move cannot be made.
      * 
      * @param state     {State} The state to move from.
-     * @param move      {char}  The move made.
-     * @param xOffset   {int}   The x offset.
-     * @param yOffset   {int}   The y offset.
      * @param offsetID  {int}   The offset ID.
      * 
      * @return          {State}
      */
-    public static State movePlayer(State state, char move, int xOffset, int yOffset, int offsetID)
+    public static State movePlayer(State state, int offsetID)
     {
         // Gets the x and y coordinates of the player.
         int xPlayer = state.playerCoor.getX();
         int yPlayer = state.playerCoor.getY();
 
         // Sets the coordinates of the next two tiles.
-        Coor nextTile1 = new Coor(xPlayer + xOffset, yPlayer + yOffset);
-        Coor nextTile2 = new Coor(xPlayer + (2 * xOffset), yPlayer + (2 * yOffset));
+        Coor nextTile1 = new Coor(xPlayer + xOffsets[offsetID], yPlayer + yOffsets[offsetID]);
+        Coor nextTile2 = new Coor(xPlayer + (2 * xOffsets[offsetID]), yPlayer + (2 * yOffsets[offsetID]));
 
         // Checks if the next tile contains a wall.
         if (wallCoor.contains(nextTile1))
@@ -188,6 +171,8 @@ public class State
             state.boxCoor.remove(nextTile1);
             state.boxCoor.add(nextTile2);
             state.boxPushedCoor = nextTile2;
+            state.xBoxSum += (nextTile2.getX() - nextTile1.getX());
+            state.yBoxSum += (nextTile2.getY() - nextTile1.getY());
 
             // Checks if the move results in a loss.
             if (!targetCoor.contains(state.boxPushedCoor))
@@ -197,7 +182,7 @@ public class State
                 int y = state.boxPushedCoor.getY();
 
                 // Loops through each offset coordinate to be checked.
-                for (int i = offsetID; i != (offsetID + 2) % 4; i = (i + 1) % 4)
+                for (int i = (offsetID + 3) % 4; i != (offsetID + 1) % 4; i = (i + 1) % 4)
                 {
                     // Gets the index of the next offset.
                     int j = (i + 1) % 4;
@@ -232,7 +217,7 @@ public class State
         state.playerCoor = nextTile1;
 
         // Sets the details of the previous state.
-        state.prev = new Prev(move, state.boxPushedCoor, state.prev);
+        state.prev = new Prev(moves[offsetID], state.boxPushedCoor, state.prev);
 
         // Returns the new state.
         return state;
@@ -257,20 +242,11 @@ public class State
     /**
      * Returns the state's heuristic value.
      * 
-     * @return {float}
+     * @return {int}
      */
-    public int heuristic()
+    public int getHeuristic()
     {
-        int xBoxSum = 0;
-        int yBoxSum = 0;
-
-        for (Coor coor : boxCoor)
-        {
-            xBoxSum += coor.getX();
-            yBoxSum += coor.getY();
-        }
-
         // Returns the sum of the manhattan distances between each box and target.
-        return Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum);
+        return ((Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum)) * 10);
     }
 }

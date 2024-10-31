@@ -19,9 +19,8 @@ public class Search
     private final HashSet<String> visitedStates = new HashSet<>();
 
     // The queue of states to be visited.
-    // private final ArrayDeque<State> queue = new ArrayDeque<>();
-
-    private final PriorityQueue<State> queue = new PriorityQueue<>(Comparator.comparing(State::heuristic));
+    private final PriorityQueue<State> queue =
+        new PriorityQueue<>(Comparator.comparing(State::getHeuristic));
 
     /**
      * Returns the single instance of the class.
@@ -53,6 +52,9 @@ public class Search
             // Dequeues the head of the queue.
             State currState = queue.poll();
 
+            // Gets the last index checked.
+            int lastChecked = 0;
+
             // Checks each move from the current state (i.e., left, right, up, and down).
             for (int i = 0; i < 4; i++)
             {
@@ -64,37 +66,7 @@ public class Search
                 State nextState;
                 try
                 {
-                    // Sets the move.
-                    char move = switch(i)
-                    {
-                        case 0 -> 'u';
-                        case 1 -> 'r';
-                        case 2 -> 'd';
-                        case 3 -> 'l';
-                        default -> 'u';
-                    };
-
-                    // Sets the x offset.
-                    int xOffset = switch(i)
-                    {
-                        case 0 -> 0;
-                        case 1 -> 1;
-                        case 2 -> 0;
-                        case 3 -> -1;
-                        default -> 0;
-                    };
-
-                    // Sets the y offset.
-                    int yOffset = switch(i)
-                    {
-                        case 0 -> -1;
-                        case 1 -> 0;
-                        case 2 -> 1;
-                        case 3 -> 0;
-                        default -> -1;
-                    };
-
-                    nextState = State.movePlayer(new State(currState), move, xOffset, yOffset, (i + 3) % 4);
+                    nextState = State.movePlayer(new State(currState), i);
                 }
                 catch (Exception e)
                 {
@@ -104,17 +76,23 @@ public class Search
                 // Checks the next state if it isn't null.
                 if (nextState != null)
                 {
+                    // Returns the path to the goal state.
+                    if (nextState.boxCoor.equals(State.targetCoor))
+                        return reversePath(nextState);
+
                     // Adds the next state to the queue if it has not yet been visited.
                     if (visitedStates.add(nextState.getHashCode()))
                         queue.add(nextState);
 
-                    // Returns the path to the last state.
-                    if (nextState.boxCoor.equals(State.targetCoor) || queue.isEmpty())
-                        return reversePath(nextState);
+                    lastChecked = i;
                 }    
             }
+
+            // Returns the path to the last state checked.
+            if (queue.isEmpty())
+                return reversePath(State.movePlayer(new State(currState), lastChecked));
         }
-        
+
         return "";
     }
 
