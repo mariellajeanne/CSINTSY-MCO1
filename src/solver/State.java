@@ -217,26 +217,27 @@ public class State
             }
         }
 
-        // The next tile does not contain a wall nor a box.
-        else
-        {
-            if (state.prev.prevDetails == null ||
-                state.prev.boxPushedCoor != null)
-            { /* do nothing */ }
-
-            // Checks if the move is redundant.
-            else if ((move == 'u' && state.prev.move == 'd') ||
-                (move == 'r' && state.prev.move == 'l') ||
-                (move == 'd' && state.prev.move == 'u') ||
-                (move == 'l' && state.prev.move == 'r'))
-                return null;
-        }
-
         // Updates the player's location.
         state.playerCoor = nextTile1;
 
         // Returns the new state.
         return new State(state.playerCoor, state.boxCoor,
                 new Prev(move, state.boxPushedCoor, state.prev));
+    }
+
+    /**
+     * Checks if a move is redundant.
+     * 
+     * @param i {int} The index of the move taken.
+     * @return {boolean}
+     */
+    public boolean isRedundant(int i)
+    {
+        return prev.prevDetails != null &&
+            prev.boxPushedCoor == null &&
+            ((i == 0 && prev.move == 'd') ||
+            (i == 1 && prev.move == 'l') ||
+            (i == 2 && prev.move == 'u') ||
+            (i == 3 && prev.move == 'r'));
     }
 }

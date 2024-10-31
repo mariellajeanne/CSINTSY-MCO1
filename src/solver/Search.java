@@ -59,6 +59,10 @@ public class Search
             // Checks each move from the current state (i.e., left, right, up, and down).
             for (int i = 0; i < 4; i++)
             {
+                // Checks if the move is redundant.
+                if (currState.isRedundant(i))
+                    continue;
+                    
                 // Gets the next state transitioned from the move.
                 State nextState;
                 try
@@ -108,8 +112,6 @@ public class Search
             path.append(prevDetails.move);
             prevDetails = prevDetails.prevDetails;
         }
-
-        System.out.println(visitedStates.size());
 
         // Returns the reversed constructed path.
         return path.reverse().toString();
