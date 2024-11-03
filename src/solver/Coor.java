@@ -1,7 +1,7 @@
 /**
  * @author Mariella Jeanne A. Dellosa
  * 
- * Representes a coordinate using bits.
+ * Representes a coordinate using bit-packing.
  */
 
 package solver;
@@ -11,7 +11,7 @@ package solver;
  */
 public class Coor implements Comparable<Coor>
 {
-    // The coordinate pair to be stored in a short.
+    // The coordinate pair to be packed in a short.
     public short coor;
 
     /**
@@ -56,7 +56,7 @@ public class Coor implements Comparable<Coor>
     }
 
     /**
-     * Returns the coordinate value as the hash code.
+     * Returns the coordinate value as the object's hash code.
      * 
      * @return {int}
      */
@@ -80,7 +80,7 @@ public class Coor implements Comparable<Coor>
         if (this == obj)
             return true;
 
-        // Returns false if obj is not a Coor object.
+        // Returns false if the object passed is not of this class.
         if (!(obj instanceof Coor))
             return false;
         
@@ -89,6 +89,7 @@ public class Coor implements Comparable<Coor>
     }
 
     /**
+     * Compares two objects of this class.
      * 
      * @param that {Coor} The coordinate pair being compared to.
      * @return {int}

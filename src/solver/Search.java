@@ -1,7 +1,7 @@
 /**
  * @author Ana Victoria R. Angat
  * 
- * Searches the winning state using Breadth-First Search.
+ * Searches the winning state using Greedy Best-First Search.
  */
 
 package solver;
@@ -35,11 +35,10 @@ public class Search
     }
 
     /**
-     * Returns the sequence of the goal state's moves using Breadth-First Search.
+     * Returns the sequence of the goal state's moves using Greedy Best-First Search.
      * Returns "" otherwise.
      * 
      * @param startingState {State} The starting state.
-     * 
      * @return {String}
      */
     public String getSequenceBFS(State startingState)
@@ -47,6 +46,7 @@ public class Search
         queue.add(startingState);
         visitedStates.add(startingState.getHashCode());
 
+        // Loops while the queue is not empty.
         while (!queue.isEmpty())
         {
             // Dequeues the head of the queue.
@@ -78,7 +78,7 @@ public class Search
                 {
                     // Returns the path to the goal state.
                     if (nextState.boxCoor.equals(State.targetCoor))
-                        return reversePath(nextState);
+                        return getPath(nextState);
 
                     // Adds the next state to the queue if it has not yet been visited.
                     if (visitedStates.add(nextState.getHashCode()))
@@ -88,22 +88,29 @@ public class Search
                 }    
             }
 
-            // Returns the path to the last state checked.
-            if (queue.isEmpty())
-                return reversePath(State.movePlayer(new State(currState), lastChecked));
+            // Returns the path to the last state checked if the queue is empty.
+            try
+            {
+                if (queue.isEmpty())
+                    return getPath(State.movePlayer(new State(currState), lastChecked));
+            }
+            catch (Exception e)
+            {
+                // Does nothing.
+            }
+            
         }
 
         return "";
     }
 
     /**
-     * Reconstructs the path taken from the given end state to the starting state.
+     * Constructs the path taken from the given end state to the starting state.
      * 
      * @param endState {State} The end state.
-     * 
      * @return {String}
      */
-    private String reversePath(State endState)
+    private String getPath(State endState)
     {   
         // Starts building the path with the last move.
         StringBuilder path = new StringBuilder().append(endState.prev.move);
@@ -118,7 +125,7 @@ public class Search
             prevDetails = prevDetails.prevDetails;
         }
 
-        // Returns the reversed constructed path.
+        // Returns the constructed path.
         return path.reverse().toString();
     }
 }

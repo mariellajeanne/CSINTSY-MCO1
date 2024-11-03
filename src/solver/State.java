@@ -50,12 +50,14 @@ public class State
      * Creates a deep copy of a state.
      * 
      * @param state {State} The state to copy.
+     * @return {State}
      */
     public State(State state)
     {
         this.playerCoor = state.playerCoor;
         this.boxCoor = new TreeSet<>(state.boxCoor);
         this.boxPushedCoor = null;
+
         this.xBoxSum = state.xBoxSum;
         this.yBoxSum = state.yBoxSum;
 
@@ -70,7 +72,7 @@ public class State
      */
     private void setCoordinates(char[][] map, char[][] items)
     {
-        // Initialization of coordinate variables.
+        // Initializes the coordinate variables.
         boxCoor = new TreeSet<>();
         targetCoor = new HashSet<>();
         wallCoor = new HashSet<>();
@@ -91,7 +93,7 @@ public class State
                 // Creates the coordinate pair.
                 Coor coor = new Coor(x, y);
 
-                // Checks the map data.
+                // Stores the map and target tiles.
                 switch (map[y][x])
                 {
                     case '#' -> { wallCoor.add(coor); }
@@ -100,7 +102,7 @@ public class State
                                   yTargetSum += y;}
                 }
 
-                // Checks the items data.
+                // Stores the player and box tiles.
                 switch (items[y][x])
                 {
                     case '$' -> { boxCoor.add(coor); }
@@ -133,11 +135,10 @@ public class State
 
     /**
      * Returns a new state resulting from the player moving.
-     * Returns null if the move cannot be made.
+     * Returns null if the move is redundant or leads to a deadlock.
      * 
      * @param state     {State} The state to move from.
-     * @param offsetID  {int}   The offset ID.
-     * 
+     * @param offsetID  {int}   The offset ID (0: up, 1: right, 2: down, 3: left).
      * @return          {State}
      */
     public static State movePlayer(State state, int offsetID)
@@ -165,6 +166,8 @@ public class State
             state.boxCoor.remove(nextTile1);
             state.boxCoor.add(nextTile2);
             state.boxPushedCoor = nextTile2;
+
+            // Updates the sum of the boxes' coordinates.
             state.xBoxSum += (nextTile2.getX() - nextTile1.getX());
             state.yBoxSum += (nextTile2.getY() - nextTile1.getY());
 
@@ -187,11 +190,11 @@ public class State
                     Coor cornerCoor = new Coor(x + xOffsets[i] + xOffsets[j],
                                     y + yOffsets[i] + yOffsets[j]);
 
-                    // Checks the contents of the current offset coordinate.
+                    // Checks the content of the current offset's coordinates.
                     boolean isCurrWall  = wallCoor.contains(currCoor);
                     boolean isCurrBox   = state.boxCoor.contains(currCoor);
 
-                    // Checks the contents of the next offset coordinate.
+                    // Checks the content of the next offset's coordinate.
                     boolean isNextWall  = wallCoor.contains(nextCoor);
                     boolean isNextBox   = state.boxCoor.contains(nextCoor);
 
@@ -219,6 +222,8 @@ public class State
 
     /**
      * Checks if a move is redundant.
+     * A move is considered redundant if the player moves
+     * towards the opposite direction without pushing a box.
      * 
      * @param i {int} The index of the move taken.
      * @return {boolean}
@@ -240,7 +245,7 @@ public class State
      */
     public int getHeuristic()
     {
-        // Returns the sum of the manhattan distances between each box and target.
-        return ((Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum)) * 10);
+        // Returns the sum of each manhattan distance between each box and target.
+        return Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum);
     }
 }

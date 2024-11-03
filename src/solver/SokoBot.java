@@ -27,7 +27,7 @@ public class SokoBot {
    */
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData)
   {
-    /**
+    /*
      * Compile and run.
      * 
      * javac src/gui/*.java src/main/*.java src/reader/*.java src/solver/*.java -d out/ -cp out

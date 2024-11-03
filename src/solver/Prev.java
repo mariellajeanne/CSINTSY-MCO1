@@ -7,7 +7,7 @@
 package solver;
 
 /**
- * The previous state class.
+ * The previous state details class.
  */
 public class Prev
 {
@@ -16,7 +16,7 @@ public class Prev
     public Prev prevDetails;        // The previous state's details.
 
     /**
-     * Constructs an instance of the prev class.
+     * Constructs an instance of the class.
      * 
      * @param move {char} The move taken.
      * @param boxPushedCoor {Coor} The coordinates of the pushed box.
