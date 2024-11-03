@@ -1,7 +1,7 @@
 /**
  * @author Mariella Jeanne A. Dellosa
  * 
- * Representes a coordinate pair using bit-packing.
+ * Represents a coordinate pair using bit-packing.
  */
 
 package solver;

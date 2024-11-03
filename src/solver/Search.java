@@ -36,7 +36,6 @@ public class Search
 
     /**
      * Returns the sequence of the goal state's moves using Greedy Best-First Search.
-     * Returns "" otherwise.
      * 
      * @param startingState {State} The starting state.
      * @return {String}
@@ -89,16 +88,17 @@ public class Search
             }
 
             // Returns the path to the last state checked if the queue is empty.
-            try
+            if (queue.isEmpty())
             {
-                if (queue.isEmpty())
+                try
+                {
                     return getPath(State.movePlayer(new State(currState), lastChecked));
+                }
+                catch (Exception e)
+                {
+                    // Does nothing.
+                }
             }
-            catch (Exception e)
-            {
-                // Does nothing.
-            }
-            
         }
 
         return "";

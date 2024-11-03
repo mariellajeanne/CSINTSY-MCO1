@@ -245,7 +245,7 @@ public class State
      */
     public int getHeuristic()
     {
-        // Returns the sum of each manhattan distance between each box and target.
+        // Returns the sum of all manhattan distances between each box and target.
         return Math.abs(xTargetSum - xBoxSum) + Math.abs(yTargetSum - yBoxSum);
     }
 }
